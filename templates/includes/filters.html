@@ -1,0 +1,80 @@
+{% load shop_extras %}
+<aside class="lg:col-span-1">
+  <form method="get" id="filter-form" class="space-y-8">
+    {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
+
+    <div>
+      <h4 class="font-serif font-bold text-base mb-3 pb-2 border-b border-line">Categories</h4>
+      <div class="space-y-2 text-sm">
+        {% for cat in all_categories %}
+        <div>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" name="category" value="{{ cat.slug }}"
+                   {% if cat.slug in selected_categories %}checked{% endif %} class="accent-golddark">
+            {{ cat.name }}
+          </label>
+          {% for sub in cat.children.all %}
+          <label class="flex items-center gap-2 pl-5 mt-1.5 text-charcoal/75">
+            <input type="checkbox" name="category" value="{{ sub.slug }}"
+                   {% if sub.slug in selected_categories %}checked{% endif %} class="accent-golddark">
+            {{ sub.name }}
+          </label>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div>
+      <h4 class="font-serif font-bold text-base mb-3 pb-2 border-b border-line">Price Range</h4>
+      <div class="flex items-center gap-2 text-sm">
+        <input type="number" name="min_price" placeholder="500" value="{{ min_price }}" class="w-full border border-line px-2 py-1.5 rounded">
+        <span>&mdash;</span>
+        <input type="number" name="max_price" placeholder="50000" value="{{ max_price }}" class="w-full border border-line px-2 py-1.5 rounded">
+      </div>
+      <button type="submit" class="mt-2 text-xs text-golddark underline">Apply</button>
+    </div>
+
+    <div>
+      <h4 class="font-serif font-bold text-base mb-3 pb-2 border-b border-line">Size</h4>
+      <div class="flex flex-wrap gap-2">
+        {% for size in all_sizes %}
+        <label class="cursor-pointer">
+          <input type="checkbox" name="size" value="{{ size.name }}" class="hidden peer"
+                 {% if size.name in selected_sizes %}checked{% endif %}>
+          <span class="inline-flex items-center justify-center w-9 h-9 border border-line text-xs font-semibold peer-checked:bg-ink peer-checked:text-white peer-checked:border-ink transition">{{ size.name }}</span>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div>
+      <h4 class="font-serif font-bold text-base mb-3 pb-2 border-b border-line">Color</h4>
+      <div class="flex flex-wrap gap-2">
+        {% for color in all_colors %}
+        <label class="cursor-pointer" title="{{ color.name }}">
+          <input type="checkbox" name="color" value="{{ color.name }}" class="hidden peer"
+                 {% if color.name in selected_colors %}checked{% endif %}>
+          <span class="filter-swatch block {% if color.name in selected_colors %}selected{% endif %}" style="background:{{ color.hex_code }}"></span>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div>
+      <h4 class="font-serif font-bold text-base mb-3 pb-2 border-b border-line">Availability</h4>
+      <div class="space-y-2 text-sm">
+        <label class="flex items-center gap-2">
+          <input type="radio" name="availability" value="in_stock"
+                 {% if availability == 'in_stock' %}checked{% endif %} class="accent-golddark"> In Stock
+        </label>
+        <label class="flex items-center gap-2">
+          <input type="radio" name="availability" value="out_of_stock"
+                 {% if availability == 'out_of_stock' %}checked{% endif %} class="accent-golddark"> Out of Stock
+        </label>
+      </div>
+    </div>
+
+    <a href="{{ request.path }}" class="block text-center text-xs text-charcoal/60 underline js-clear-filters">Clear all filters</a>
+  </form>
+</aside>

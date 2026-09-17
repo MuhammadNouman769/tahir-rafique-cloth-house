@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+{% load shop_extras %}
+{% block title %}{{ product.name }} — {{ site_settings.store_name }}{% endblock %}
+{% block meta_description %}{{ product.short_description|default:product.description|truncatewords:25 }}{% endblock %}
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pb-28 lg:pb-10">
+
+  <nav class="text-xs text-charcoal/50 mb-6">
+    <a href="{% url 'pages:home' %}" class="hover:text-golddark">Home</a> /
+    <a href="{{ product.category.get_absolute_url }}" class="hover:text-golddark">{{ product.category.name }}</a> /
+    <span class="text-ink">{{ product.name }}</span>
+  </nav>
+
+  <div class="grid lg:grid-cols-2 gap-12">
+    <!-- Gallery -->
+    <div>
+      <div class="img-wrap rounded-lg mb-3" style="aspect-ratio:3/4">
+        {% with main_image=product.images.first %}
+        <img id="main-product-image" src="{% if main_image %}{{ main_image.image.url }}{% endif %}" alt="{{ product.name }}"
+             class="w-full h-full object-cover">
+        {% endwith %}
+        {% if product.is_on_sale %}<span class="badge-sale absolute top-3 left-3 rounded-sm">{{ product.discount_percentage }}% OFF</span>{% endif %}
+      </div>
+      <div class="flex gap-3 overflow-x-auto no-scrollbar">
+        {% for img in product.images.all %}
+        <button onclick="document.getElementById('main-product-image').src = '{{ img.image.url }}'"
+                class="shrink-0 w-20 h-24 rounded overflow-hidden border-2 border-transparent hover:border-golddark transition">
+          <img src="{{ img.image.url }}" alt="{{ img.alt_text }}" class="w-full h-full object-cover">
+        </button>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Info -->
+    <div>
+      <p class="text-xs text-golddark uppercase tracking-wide mb-1">{{ product.category.name }}{% if product.brand %} &middot; {{ product.brand.name }}{% endif %}</p>
+      <h1 class="font-serif text-3xl sm:text-4xl font-bold">{{ product.name }}</h1>
+      <p class="text-xs text-charcoal/50 mt-2">SKU: {{ product.sku }}</p>
+
+      <div class="flex items-center gap-1 mt-3">
+        {% for _ in product.rating|stars_range %}<span class="star">&#9733;</span>{% endfor %}
+        {% for _ in product.rating|empty_stars_range %}<span class="star-empty">&#9733;</span>{% endfor %}
+        <span class="text-sm text-charcoal/60 ml-2">{{ product.rating }} ({{ product.review_count }} reviews)</span>
+      </div>
+
+      <div class="flex items-center gap-3 mt-5">
+        {% if product.is_on_sale %}
+          <span class="font-serif font-bold text-3xl">{{ product.sale_price|currency:site_settings.currency_symbol }}</span>
+          <span class="price-strike text-lg">{{ product.price|currency:site_settings.currency_symbol }}</span>
+          <span class="badge-sale rounded-sm">{{ product.discount_percentage }}% OFF</span>
+        {% else %}
+          <span class="font-serif font-bold text-3xl">{{ product.price|currency:site_settings.currency_symbol }}</span>
+        {% endif %}
+      </div>
+
+      <p class="mt-2 text-sm {% if product.in_stock %}text-green-700{% else %}text-maroon{% endif %} font-medium">
+        {% if product.in_stock %}In Stock ({{ product.stock_quantity }} available){% else %}Out of Stock{% endif %}
+      </p>
+
+      <p class="text-charcoal/70 mt-5 leading-relaxed">{{ product.short_description|default:product.description|truncatewords:35 }}</p>
+
+      <form action="{% url 'cart:cart_add' product.id %}" method="post" class="mt-6 space-y-5 js-add-to-cart" id="add-to-cart-form">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.path }}">
+
+        {% if product.sizes.all %}
+        <div>
+          <p class="text-sm font-semibold mb-2">Size</p>
+          <div class="flex flex-wrap gap-2">
+            {% for size in product.sizes.all %}
+            <label class="cursor-pointer">
+              <input type="radio" name="size" value="{{ size.name }}" class="hidden peer" {% if forloop.first %}checked{% endif %} required>
+              <span class="inline-flex items-center justify-center w-11 h-11 border border-line text-sm font-semibold peer-checked:bg-ink peer-checked:text-white peer-checked:border-ink transition">{{ size.name }}</span>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        {% if product.colors.all %}
+        <div>
+          <p class="text-sm font-semibold mb-2">Color</p>
+          <div class="flex flex-wrap gap-2">
+            {% for color in product.colors.all %}
+            <label class="cursor-pointer" title="{{ color.name }}">
+              <input type="radio" name="color" value="{{ color.name }}" class="hidden peer" {% if forloop.first %}checked{% endif %} required>
+              <span class="filter-swatch block peer-checked:selected" style="background:{{ color.hex_code }}"></span>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <div>
+          <p class="text-sm font-semibold mb-2">Quantity</p>
+          <div class="flex items-center border border-line w-max rounded">
+            <button type="button" onclick="stepQty(-1)" class="px-4 py-2 text-lg">&minus;</button>
+            <input type="number" name="quantity" id="qty-input" value="1" min="1" max="{{ product.stock_quantity }}" class="w-14 text-center outline-none border-x border-line py-2">
+            <button type="button" onclick="stepQty(1)" class="px-4 py-2 text-lg">+</button>
+          </div>
+        </div>
+
+        {% if product.in_stock %}
+        <div class="flex flex-col sm:flex-row gap-3">
+          <button type="submit" class="btn-outline flex-1">Add to Cart</button>
+          <button type="submit" formaction="{% url 'cart:cart_add' product.id %}" name="buy_now" value="1"
+                  onclick="this.form.action='{% url 'cart:cart_add' product.id %}'; this.form.querySelector('[name=next]').value='{% url 'orders:checkout' %}';"
+                  class="btn-primary flex-1">Buy Now</button>
+        </div>
+        {% else %}
+        <button disabled class="w-full bg-sand text-charcoal/40 py-3 cursor-not-allowed">Out of Stock</button>
+        {% endif %}
+      </form>
+
+      <!-- Product Info Accordion -->
+      <div class="mt-10 border-t border-line divide-y divide-line">
+        <details class="py-4" open>
+          <summary class="font-serif font-semibold cursor-pointer">Description</summary>
+          <p class="text-sm text-charcoal/70 mt-3 leading-relaxed">{{ product.description }}</p>
+        </details>
+        <details class="py-4">
+          <summary class="font-serif font-semibold cursor-pointer">Material & Care</summary>
+          <p class="text-sm text-charcoal/70 mt-3"><b>Material:</b> {{ product.material }}</p>
+          <p class="text-sm text-charcoal/70 mt-1"><b>Care:</b> {{ product.care_instructions }}</p>
+        </details>
+        <details class="py-4">
+          <summary class="font-serif font-semibold cursor-pointer">Shipping Information</summary>
+          <p class="text-sm text-charcoal/70 mt-3">Free delivery on orders above {{ site_settings.free_delivery_threshold|currency:site_settings.currency_symbol }}. Standard delivery: 3–5 business days nationwide.</p>
+        </details>
+        <details class="py-4">
+          <summary class="font-serif font-semibold cursor-pointer">Returns Information</summary>
+          <p class="text-sm text-charcoal/70 mt-3">Easy returns within 7 days of delivery for unused items with original tags.</p>
+        </details>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reviews -->
+  {% if reviews %}
+  <section class="mt-16 max-w-3xl">
+    <h2 class="font-serif text-2xl font-bold mb-6">Customer Reviews</h2>
+    <div class="space-y-5">
+      {% for review in reviews %}
+      <div class="border-b border-line pb-5">
+        <div class="flex items-center gap-2">
+          <span class="font-semibold text-sm">{{ review.customer_name }}</span>
+          <span class="flex gap-0.5">{% for _ in review.rating|stars_range %}<span class="star text-xs">&#9733;</span>{% endfor %}</span>
+        </div>
+        <p class="text-sm text-charcoal/70 mt-1.5">{{ review.comment }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- Related Products -->
+  {% if related_products %}
+  <section class="mt-16">
+    <h2 class="font-serif text-2xl font-bold mb-6">You May Also Like</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
+      {% for product in related_products %}{% include 'includes/product_card.html' %}{% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- Recently Viewed -->
+  {% if recently_viewed %}
+  <section class="mt-16">
+    <h2 class="font-serif text-2xl font-bold mb-6">Recently Viewed</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
+      {% for product in recently_viewed %}{% include 'includes/product_card.html' %}{% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</div>
+
+<!-- Mobile sticky CTA -->
+<div class="sticky-mobile-cta p-3 flex gap-3">
+  {% if product.in_stock %}
+  <button onclick="document.getElementById('add-to-cart-form').requestSubmit()" class="btn-primary flex-1 text-sm py-3">Add to Cart — {{ product.current_price|currency:site_settings.currency_symbol }}</button>
+  {% else %}
+  <button disabled class="w-full bg-sand text-charcoal/40 py-3 text-sm">Out of Stock</button>
+  {% endif %}
+</div>
+
+<script>
+  function stepQty(delta) {
+    const input = document.getElementById('qty-input');
+    let val = parseInt(input.value || '1') + delta;
+    val = Math.max(1, Math.min(val, parseInt(input.max || '99')));
+    input.value = val;
+  }
+</script>
+{% endblock %}

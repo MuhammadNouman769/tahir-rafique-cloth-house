@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}My Profile — {{ site_settings.store_name }}{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <h1 class="font-serif text-3xl font-bold mb-2">My Profile</h1>
+  <p class="text-charcoal/60 mb-8">Manage your account details</p>
+
+  <form method="post" class="space-y-4">
+    {% csrf_token %}
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-semibold mb-1">First Name</label>
+        {{ form.first_name }}
+      </div>
+      <div>
+        <label class="block text-sm font-semibold mb-1">Last Name</label>
+        {{ form.last_name }}
+      </div>
+    </div>
+    <div>
+      <label class="block text-sm font-semibold mb-1">Email</label>
+      {{ form.email }}
+    </div>
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-semibold mb-1">Phone</label>
+        {{ form.phone }}
+      </div>
+      <div>
+        <label class="block text-sm font-semibold mb-1">WhatsApp</label>
+        {{ form.whatsapp }}
+      </div>
+    </div>
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-semibold mb-1">City</label>
+        {{ form.city }}
+      </div>
+    </div>
+    <div>
+      <label class="block text-sm font-semibold mb-1">Address</label>
+      {{ form.address }}
+    </div>
+    <button type="submit" class="btn-primary">Save Changes</button>
+  </form>
+
+  <div class="mt-10 pt-8 border-t border-line flex flex-wrap gap-4">
+    <a href="{% url 'orders:history' %}" class="btn-outline">View Order History</a>
+    <a href="{% url 'accounts:logout' %}" class="text-maroon text-sm self-center underline">Logout</a>
+  </div>
+</div>
+{% endblock %}

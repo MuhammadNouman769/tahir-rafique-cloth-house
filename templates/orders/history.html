@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load shop_extras %}
+{% block title %}Order History — {{ site_settings.store_name }}{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <h1 class="font-serif text-3xl font-bold mb-8">Order History</h1>
+
+  {% if orders %}
+  <div class="space-y-4">
+    {% for order in orders %}
+    <a href="{% url 'orders:detail' order.order_number %}" class="block border border-line rounded-lg p-5 hover:border-golddark transition">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p class="font-serif font-bold">{{ order.order_number }}</p>
+          <p class="text-xs text-charcoal/50 mt-1">{{ order.created_at|date:"d M Y, h:i A" }} &middot; {{ order.items.count }} item{{ order.items.count|pluralize }}</p>
+        </div>
+        <div class="text-right">
+          <span class="inline-block text-xs font-semibold uppercase tracking-wide px-3 py-1 rounded-full
+            {% if order.status == 'delivered' %}bg-green-100 text-green-700
+            {% elif order.status == 'cancelled' %}bg-red-100 text-maroon
+            {% else %}bg-sand text-golddark{% endif %}">{{ order.get_status_display }}</span>
+          <p class="font-serif font-bold mt-2">{{ order.total|currency:site_settings.currency_symbol }}</p>
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-20">
+    <p class="text-charcoal/50 mb-6">You haven't placed any orders yet.</p>
+    <a href="{% url 'products:shop' %}" class="btn-primary inline-block">Start Shopping</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

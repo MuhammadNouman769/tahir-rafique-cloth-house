@@ -1,0 +1,188 @@
+/* Tahir Rafique Cloth House — premium storefront styling */
+
+:root {
+  --color-ink: #1a1512;
+  --color-charcoal: #2b2420;
+  --color-cream: #faf7f2;
+  --color-sand: #f0e9df;
+  --color-gold: #b8925a;
+  --color-gold-dark: #96703f;
+  --color-maroon: #7a1f2b;
+  --color-line: #e4dcd0;
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  background: var(--color-cream);
+}
+
+.font-serif { font-family: var(--font-serif); }
+
+/* Sticky announcement + header */
+.announcement-bar {
+  background: var(--color-ink);
+  color: var(--color-sand);
+  letter-spacing: 0.04em;
+}
+
+.site-header {
+  background: rgba(250, 247, 242, 0.96);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.nav-link {
+  position: relative;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--color-charcoal);
+  transition: color .2s ease;
+}
+.nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: -6px;
+  width: 0; height: 2px;
+  background: var(--color-gold);
+  transition: width .25s ease;
+}
+.nav-link:hover, .nav-link.active { color: var(--color-gold-dark); }
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+
+.logo-mark {
+  font-family: var(--font-serif);
+  letter-spacing: 0.02em;
+}
+
+/* Buttons */
+.btn-primary {
+  background: var(--color-ink);
+  color: #fff;
+  padding: 0.85rem 2rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  transition: all .25s ease;
+  border: 1px solid var(--color-ink);
+}
+.btn-primary:hover { background: var(--color-gold-dark); border-color: var(--color-gold-dark); transform: translateY(-1px); }
+
+.btn-outline {
+  background: transparent;
+  color: var(--color-ink);
+  border: 1.5px solid var(--color-ink);
+  padding: 0.8rem 1.9rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  transition: all .25s ease;
+}
+.btn-outline:hover { background: var(--color-ink); color: #fff; }
+
+.btn-whatsapp {
+  background: #25D366;
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  transition: all .2s ease;
+}
+.btn-whatsapp:hover { background: #1ebd59; transform: translateY(-1px); }
+
+/* Product card */
+.product-card { position: relative; }
+.product-card .img-wrap {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-sand);
+  aspect-ratio: 3/4;
+}
+.product-card .img-wrap img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: opacity .4s ease, transform .5s ease;
+}
+.product-card .img-secondary { opacity: 0; }
+.product-card:hover .img-secondary { opacity: 1; }
+.product-card:hover .img-primary { transform: scale(1.03); }
+
+.badge-sale {
+  background: var(--color-maroon);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 0.2rem 0.6rem;
+}
+
+.badge-out {
+  background: rgba(26,21,18,0.85);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 0.2rem 0.6rem;
+}
+
+.wishlist-btn {
+  background: rgba(255,255,255,0.9);
+  transition: all .2s ease;
+}
+.wishlist-btn:hover { background: #fff; color: var(--color-maroon); }
+
+.price-strike { text-decoration: line-through; color: #9a8f83; }
+
+/* Category card */
+.category-card { position: relative; overflow: hidden; }
+.category-card img { transition: transform .6s ease; }
+.category-card:hover img { transform: scale(1.06); }
+.category-card .overlay {
+  background: linear-gradient(to top, rgba(26,21,18,.75), rgba(26,21,18,.05) 55%);
+}
+
+/* Hero */
+.hero-slide { background-size: cover; background-position: center; }
+.hero-overlay { background: linear-gradient(90deg, rgba(26,21,18,.55) 0%, rgba(26,21,18,.15) 60%); }
+
+/* Section title */
+.section-eyebrow {
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-gold-dark);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+/* Filters sidebar */
+.filter-swatch {
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 1px solid var(--color-line);
+  cursor: pointer;
+}
+.filter-swatch.selected { outline: 2px solid var(--color-gold); outline-offset: 2px; }
+
+/* Rating stars */
+.star { color: var(--color-gold); }
+.star-empty { color: var(--color-line); }
+
+/* Utility animations */
+.fade-in { animation: fadeIn .5s ease both; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Scrollbar-less horizontal scroller for gallery/mobile */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Mobile bottom sticky bar on product detail */
+.sticky-mobile-cta {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  z-index: 40;
+  background: #fff;
+  border-top: 1px solid var(--color-line);
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.06);
+}
+
+@media (min-width: 1024px) {
+  .sticky-mobile-cta { display: none; }
+}

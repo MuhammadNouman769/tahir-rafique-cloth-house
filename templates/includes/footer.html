@@ -1,0 +1,57 @@
+{% load static %}
+<footer class="bg-ink text-sand mt-20">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 grid grid-cols-2 md:grid-cols-4 gap-10">
+
+    <div class="col-span-2 md:col-span-1">
+      <img src="{% static 'img/logo.svg' %}" alt="{{ site_settings.store_name }}" class="h-10 w-auto mb-4 brightness-0 invert opacity-90">
+      <p class="text-sm text-sand/70 leading-relaxed">{{ site_settings.tagline }}</p>
+      <div class="flex gap-3 mt-5">
+        <a href="{{ site_settings.facebook_url }}" class="w-9 h-9 rounded-full border border-sand/30 flex items-center justify-center hover:bg-gold hover:border-gold transition" aria-label="Facebook">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M13.5 22v-8.4h2.8l.4-3.3h-3.2V8.2c0-.95.27-1.6 1.63-1.6h1.74V3.6C15.9 3.5 14.9 3.4 13.7 3.4c-2.4 0-4 1.5-4 4.2v2.7H7v3.3h2.7V22h3.8z"/></svg>
+        </a>
+        <a href="{{ site_settings.instagram_url }}" class="w-9 h-9 rounded-full border border-sand/30 flex items-center justify-center hover:bg-gold hover:border-gold transition" aria-label="Instagram">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.85.07 1.2.06 2.05.25 2.5.42.6.24 1.03.52 1.48.97.45.45.73.88.97 1.48.17.45.36 1.3.42 2.5.06 1.25.07 1.65.07 4.85s0 3.6-.07 4.85c-.06 1.2-.25 2.05-.42 2.5-.24.6-.52 1.03-.97 1.48-.45.45-.88.73-1.48.97-.45.17-1.3.36-2.5.42-1.25.06-1.65.07-4.85.07s-3.6 0-4.85-.07c-1.2-.06-2.05-.25-2.5-.42a4 4 0 01-1.48-.97 4 4 0 01-.97-1.48c-.17-.45-.36-1.3-.42-2.5C2.2 15.6 2.2 15.2 2.2 12s0-3.6.07-4.85c.06-1.2.25-2.05.42-2.5.24-.6.52-1.03.97-1.48.45-.45.88-.73 1.48-.97.45-.17 1.3-.36 2.5-.42C8.4 2.2 8.8 2.2 12 2.2zm0 1.8c-3.15 0-3.52 0-4.76.07-1.02.05-1.57.22-1.94.36-.49.19-.84.42-1.2.79-.37.36-.6.71-.79 1.2-.14.37-.31.92-.36 1.94C2.9 8.48 2.9 8.85 2.9 12s0 3.52.07 4.76c.05 1.02.22 1.57.36 1.94.19.49.42.84.79 1.2.36.37.71.6 1.2.79.37.14.92.31 1.94.36 1.24.06 1.61.07 4.76.07s3.52 0 4.76-.07c1.02-.05 1.57-.22 1.94-.36.49-.19.84-.42 1.2-.79.37-.36.6-.71.79-1.2.14-.37.31-.92.36-1.94.06-1.24.07-1.61.07-4.76s0-3.52-.07-4.76c-.05-1.02-.22-1.57-.36-1.94a3.2 3.2 0 00-.79-1.2 3.2 3.2 0 00-1.2-.79c-.37-.14-.92-.31-1.94-.36C15.52 4 15.15 4 12 4zm0 3.4a4.6 4.6 0 110 9.2 4.6 4.6 0 010-9.2zm0 1.8a2.8 2.8 0 100 5.6 2.8 2.8 0 000-5.6zm5.85-2a1.08 1.08 0 11-2.16 0 1.08 1.08 0 012.16 0z"/></svg>
+        </a>
+        <a href="{{ site_settings.tiktok_url }}" class="w-9 h-9 rounded-full border border-sand/30 flex items-center justify-center hover:bg-gold hover:border-gold transition" aria-label="TikTok">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M14.5 2h3.1c.2 1.6 1.2 3 2.9 3.5v3.1c-1.4 0-2.7-.4-3.9-1.2v6.3c0 3.5-2.8 6.3-6.3 6.3S4 16.7 4 13.2s2.8-6.3 6.3-6.3c.3 0 .6 0 .9.06v3.2a3 3 0 00-.9-.14 3.15 3.15 0 100 6.3c1.75 0 3.15-1.4 3.15-3.15V2z"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div>
+      <h4 class="font-serif font-bold text-lg mb-4">Shop</h4>
+      <ul class="space-y-2 text-sm text-sand/75">
+        <li><a href="{% url 'products:category' 'men' %}" class="hover:text-gold">Men</a></li>
+        <li><a href="{% url 'products:category' 'women' %}" class="hover:text-gold">Women</a></li>
+        <li><a href="{% url 'products:category' 'children' %}" class="hover:text-gold">Children</a></li>
+        <li><a href="{% url 'products:category' 'abaya' %}" class="hover:text-gold">Abaya</a></li>
+        <li><a href="{% url 'products:deals' %}" class="hover:text-gold">Deals</a></li>
+        <li><a href="{% url 'products:shop' %}" class="hover:text-gold">All Products</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h4 class="font-serif font-bold text-lg mb-4">Customer Service</h4>
+      <ul class="space-y-2 text-sm text-sand/75">
+        <li><a href="{% url 'contact:contact' %}" class="hover:text-gold">Contact Us</a></li>
+        <li><a href="{% url 'pages:about' %}" class="hover:text-gold">About Us</a></li>
+        <li><a href="{% url 'orders:history' %}" class="hover:text-gold">Order History</a></li>
+        <li><a href="{% url 'products:shop' %}" class="hover:text-gold">Shipping & Returns</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h4 class="font-serif font-bold text-lg mb-4">Contact</h4>
+      <ul class="space-y-2 text-sm text-sand/75">
+        <li>{{ site_settings.support_phone }}</li>
+        <li>WhatsApp: {{ site_settings.whatsapp_number }}</li>
+        <li>{{ site_settings.email }}</li>
+        <li>{{ site_settings.address }}</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="border-t border-sand/15 py-5 text-center text-xs text-sand/60">
+    &copy; {% now "Y" %} {{ site_settings.store_name }}. All rights reserved.
+  </div>
+</footer>

@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Login — {{ site_settings.store_name }}{% endblock %}
+{% block content %}
+<div class="max-w-md mx-auto px-4 py-16">
+  <h1 class="font-serif text-3xl font-bold mb-2 text-center">Welcome Back</h1>
+  <p class="text-charcoal/60 text-center mb-8">Login to your account</p>
+
+  <form method="post" class="space-y-4">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.GET.next }}">
+    <div>
+      <label class="block text-sm font-semibold mb-1">Username</label>
+      <input type="text" name="username" required class="w-full border border-line px-4 py-3 rounded outline-none focus:border-golddark">
+    </div>
+    <div>
+      <label class="block text-sm font-semibold mb-1">Password</label>
+      <input type="password" name="password" required class="w-full border border-line px-4 py-3 rounded outline-none focus:border-golddark">
+    </div>
+    <button type="submit" class="btn-primary w-full">Login</button>
+  </form>
+
+  <p class="text-center text-sm text-charcoal/60 mt-6">
+    Don't have an account?
+    <a href="{% url 'accounts:register' %}" class="text-golddark underline">Register</a>
+  </p>
+  <p class="text-center text-xs text-charcoal/40 mt-4">
+    Guest checkout is also available — you don't need an account to place an order.
+  </p>
+</div>
+{% endblock %}

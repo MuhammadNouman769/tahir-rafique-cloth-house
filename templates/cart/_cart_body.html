@@ -1,0 +1,56 @@
+{% load shop_extras %}
+{% if cart|length > 0 %}
+<div class="grid lg:grid-cols-3 gap-10">
+  <div class="lg:col-span-2 space-y-5" id="cart-items">
+    {% for item in cart %}
+    <div class="flex gap-4 border-b border-line pb-5">
+      <a href="{{ item.product.get_absolute_url }}" class="w-24 h-28 rounded overflow-hidden shrink-0 bg-sand">
+        {% with img=item.product.primary_image %}
+        {% if img %}<img src="{{ img.image.url }}" alt="{{ item.product.name }}" class="w-full h-full object-cover">{% endif %}
+        {% endwith %}
+      </a>
+      <div class="flex-1">
+        <div class="flex justify-between">
+          <div>
+            <a href="{{ item.product.get_absolute_url }}"><h3 class="font-medium hover:text-golddark">{{ item.product.name }}</h3></a>
+            <p class="text-xs text-charcoal/50 mt-1">
+              {% if item.size %}Size: {{ item.size }}{% endif %}
+              {% if item.color %} &middot; Color: {{ item.color }}{% endif %}
+            </p>
+          </div>
+          <button type="button" class="text-charcoal/40 hover:text-maroon js-cart-remove" data-key="{{ item.key }}" aria-label="Remove">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="flex items-center justify-between mt-3">
+          <div class="flex items-center border border-line rounded w-max">
+            <button type="button" class="px-3 py-1.5 js-cart-qty" data-key="{{ item.key }}" data-quantity="{{ item.quantity|add:'-1' }}">&minus;</button>
+            <span class="px-3 text-sm">{{ item.quantity }}</span>
+            <button type="button" class="px-3 py-1.5 js-cart-qty" data-key="{{ item.key }}" data-quantity="{{ item.quantity|add:'1' }}">+</button>
+          </div>
+          <span class="font-serif font-bold">{{ item.subtotal|currency:site_settings.currency_symbol }}</span>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    <a href="{% url 'products:shop' %}" class="text-sm text-golddark underline">&larr; Continue Shopping</a>
+  </div>
+
+  <div class="bg-sand/50 rounded-lg p-6 h-max sticky top-28">
+    <h2 class="font-serif font-bold text-xl mb-5">Order Summary</h2>
+    <div class="space-y-2 text-sm">
+      <div class="flex justify-between"><span>Subtotal</span><span>{{ cart.get_subtotal|currency:site_settings.currency_symbol }}</span></div>
+      <div class="flex justify-between text-charcoal/60"><span>Delivery</span><span>Calculated at checkout</span></div>
+    </div>
+    <div class="border-t border-line mt-4 pt-4 flex justify-between font-serif font-bold text-lg">
+      <span>Total</span><span>{{ cart.get_subtotal|currency:site_settings.currency_symbol }}</span>
+    </div>
+    <a href="{% url 'orders:checkout' %}" class="btn-primary w-full text-center block mt-6">Proceed to Checkout</a>
+  </div>
+</div>
+{% else %}
+<div class="text-center py-20">
+  <p class="text-charcoal/50 mb-6">Your cart is empty.</p>
+  <a href="{% url 'products:shop' %}" class="btn-primary inline-block">Start Shopping</a>
+</div>
+{% endif %}

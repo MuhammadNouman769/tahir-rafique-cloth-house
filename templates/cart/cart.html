@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Shopping Cart — {{ site_settings.store_name }}{% endblock %}
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <h1 class="font-serif text-3xl font-bold mb-8">Your Cart</h1>
+  <div id="cart-body">
+    {% include 'cart/_cart_body.html' %}
+  </div>
+</div>
+{% endblock %}

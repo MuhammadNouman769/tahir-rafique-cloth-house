@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load shop_extras %}
+{% block title %}Order {{ order.order_number }} — {{ site_settings.store_name }}{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <a href="{% url 'orders:history' %}" class="text-sm text-golddark underline">&larr; Back to Order History</a>
+  <div class="flex items-center justify-between mt-4 mb-8">
+    <h1 class="font-serif text-3xl font-bold">{{ order.order_number }}</h1>
+    <span class="inline-block text-xs font-semibold uppercase tracking-wide px-3 py-1 rounded-full
+      {% if order.status == 'delivered' %}bg-green-100 text-green-700
+      {% elif order.status == 'cancelled' %}bg-red-100 text-maroon
+      {% else %}bg-sand text-golddark{% endif %}">{{ order.get_status_display }}</span>
+  </div>
+
+  <div class="grid sm:grid-cols-2 gap-6 mb-8 text-sm">
+    <div>
+      <h3 class="font-semibold mb-2">Delivery Address</h3>
+      <p class="text-charcoal/70">{{ order.full_name }}</p>
+      <p class="text-charcoal/70">{{ order.phone }}</p>
+      <p class="text-charcoal/70">{{ order.address }}, {{ order.area }}, {{ order.city }} {{ order.postal_code }}</p>
+    </div>
+    <div>
+      <h3 class="font-semibold mb-2">Order Info</h3>
+      <p class="text-charcoal/70">Placed on {{ order.created_at|date:"d M Y, h:i A" }}</p>
+      {% if order.notes %}<p class="text-charcoal/70 mt-1">Note: {{ order.notes }}</p>{% endif %}
+    </div>
+  </div>
+
+  <div class="border border-line rounded-lg divide-y divide-line">
+    {% for item in order.items.all %}
+    <div class="flex justify-between p-4 text-sm">
+      <span>{{ item.product_name }} x{{ item.quantity }}{% if item.size %} ({{ item.size }}{% if item.color %}, {{ item.color }}{% endif %}){% endif %}</span>
+      <span>{{ item.subtotal|currency:site_settings.currency_symbol }}</span>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="mt-4 space-y-1 text-sm max-w-xs ml-auto">
+    <div class="flex justify-between"><span>Subtotal</span><span>{{ order.subtotal|currency:site_settings.currency_symbol }}</span></div>
+    <div class="flex justify-between"><span>Delivery</span><span>{{ order.delivery_charges|currency:site_settings.currency_symbol }}</span></div>
+    <div class="flex justify-between font-bold text-base border-t border-line pt-2 mt-1"><span>Total</span><span>{{ order.total|currency:site_settings.currency_symbol }}</span></div>
+  </div>
+
+  <a href="{{ whatsapp_url }}" target="_blank" rel="noopener" class="btn-whatsapp inline-flex items-center gap-2 px-6 py-3 rounded mt-8">
+    Message Us About This Order
+  </a>
+</div>
+{% endblock %}

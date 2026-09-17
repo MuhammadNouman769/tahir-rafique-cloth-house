@@ -1,0 +1,11 @@
+{% if page_obj.object_list %}
+<div class="grid grid-cols-2 md:grid-cols-3 gap-5">
+  {% for product in page_obj %}{% include 'includes/product_card.html' %}{% endfor %}
+</div>
+{% include 'includes/pagination.html' %}
+{% else %}
+<div class="text-center py-20">
+  <p class="text-charcoal/50">No products match your filters. Try adjusting or clearing them.</p>
+  <a href="{{ request.path }}" class="btn-outline inline-block mt-4 js-clear-filters">Clear Filters</a>
+</div>
+{% endif %}

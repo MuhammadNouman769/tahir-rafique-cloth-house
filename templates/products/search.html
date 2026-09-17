@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}{{ page_title }} — {{ site_settings.store_name }}{% endblock %}
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <h1 class="font-serif text-3xl font-bold mb-2">Search Results</h1>
+  {% if query %}
+    <p class="text-charcoal/60 mb-8" id="result-count">Showing {{ total_count }} result{{ total_count|pluralize }} for &ldquo;<span class="font-semibold text-ink">{{ query }}</span>&rdquo;</p>
+  {% endif %}
+
+  <form action="{% url 'products:search' %}" method="get" class="mb-10 max-w-xl">
+    <div class="flex">
+      <input type="text" name="q" value="{{ query }}" placeholder="Search for products, categories, SKU..."
+             class="flex-1 border border-line px-4 py-3 rounded-l outline-none focus:border-golddark">
+      <button type="submit" class="btn-primary rounded-l-none rounded-r">Search</button>
+    </div>
+  </form>
+
+  {% if not query %}
+  <p class="text-charcoal/50">Enter a search term above to find products.</p>
+  {% else %}
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-10">
+    {% include 'includes/filters.html' %}
+    <div class="lg:col-span-3">
+      <div class="flex items-center justify-end mb-6">
+        <select name="sort" form="filter-form" class="border border-line px-3 py-2 rounded text-sm">
+          <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest</option>
+          <option value="price_low" {% if sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+          <option value="price_high" {% if sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+          <option value="popular" {% if sort == 'popular' %}selected{% endif %}>Popular</option>
+        </select>
+      </div>
+      <div id="product-listing">
+        {% include 'products/_product_grid.html' %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

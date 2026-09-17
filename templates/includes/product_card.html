@@ -1,0 +1,60 @@
+{% load shop_extras %}
+<div class="product-card group fade-in">
+  <a href="{{ product.get_absolute_url }}" class="block img-wrap rounded-md">
+    {% with primary=product.primary_image secondary=product.secondary_image %}
+      {% if primary %}
+        <img src="{{ primary.image.url }}" alt="{{ primary.alt_text|default:product.name }}" class="img-primary" loading="lazy">
+      {% endif %}
+      {% if secondary %}
+        <img src="{{ secondary.image.url }}" alt="{{ product.name }}" class="img-secondary" loading="lazy">
+      {% endif %}
+    {% endwith %}
+
+    <div class="absolute top-2 left-2 flex flex-col gap-1">
+      {% if product.is_on_sale %}
+        <span class="badge-sale rounded-sm">{{ product.discount_percentage }}% OFF</span>
+      {% endif %}
+      {% if not product.in_stock %}
+        <span class="badge-out rounded-sm">Out of Stock</span>
+      {% elif product.new_arrival %}
+        <span class="rounded-sm bg-golddark text-white text-[11px] font-bold px-2 py-0.5">NEW</span>
+      {% endif %}
+    </div>
+
+    <button type="button" onclick="event.preventDefault();" class="wishlist-btn absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center" aria-label="Add to wishlist">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
+      </svg>
+    </button>
+  </a>
+
+  <div class="pt-3">
+    <p class="text-xs text-golddark uppercase tracking-wide">{{ product.category.name }}</p>
+    <a href="{{ product.get_absolute_url }}">
+      <h3 class="font-medium text-ink mt-0.5 truncate hover:text-golddark transition">{{ product.name }}</h3>
+    </a>
+    <div class="flex items-center gap-0.5 mt-1" aria-label="Rating {{ product.rating }} of 5">
+      {% for _ in product.rating|stars_range %}<span class="star text-xs">&#9733;</span>{% endfor %}
+      {% for _ in product.rating|empty_stars_range %}<span class="star-empty text-xs">&#9733;</span>{% endfor %}
+      <span class="text-xs text-charcoal/50 ml-1">({{ product.review_count }})</span>
+    </div>
+    <div class="flex items-center gap-2 mt-1.5">
+      {% if product.is_on_sale %}
+        <span class="font-serif font-bold text-lg">{{ product.sale_price|currency:site_settings.currency_symbol }}</span>
+        <span class="price-strike text-sm">{{ product.price|currency:site_settings.currency_symbol }}</span>
+      {% else %}
+        <span class="font-serif font-bold text-lg">{{ product.price|currency:site_settings.currency_symbol }}</span>
+      {% endif %}
+    </div>
+
+    {% if product.in_stock %}
+    <form action="{% url 'cart:cart_add' product.id %}" method="post" class="mt-2.5 js-add-to-cart">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.path }}">
+      <button type="submit" class="w-full btn-outline text-sm py-2">Add to Cart</button>
+    </form>
+    {% else %}
+    <button disabled class="w-full mt-2.5 bg-sand text-charcoal/40 text-sm py-2 cursor-not-allowed">Out of Stock</button>
+    {% endif %}
+  </div>
+</div>

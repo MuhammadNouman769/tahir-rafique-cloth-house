@@ -1,0 +1,17 @@
+{% if messages %}
+<div class="fixed top-20 left-1/2 -translate-x-1/2 z-[60] w-full max-w-md px-4 space-y-2" id="flash-messages">
+  {% for message in messages %}
+  <div class="fade-in px-4 py-3 rounded shadow-lg text-sm font-medium flex items-start justify-between gap-3
+    {% if message.tags == 'success' %}bg-green-600 text-white
+    {% elif message.tags == 'error' %}bg-maroon text-white
+    {% elif message.tags == 'warning' %}bg-golddark text-white
+    {% else %}bg-ink text-white{% endif %}">
+    <span>{{ message }}</span>
+    <button onclick="this.parentElement.remove()" class="opacity-80 hover:opacity-100">&times;</button>
+  </div>
+  {% endfor %}
+</div>
+<script>
+  setTimeout(() => { const el = document.getElementById('flash-messages'); if (el) el.remove(); }, 5000);
+</script>
+{% endif %}

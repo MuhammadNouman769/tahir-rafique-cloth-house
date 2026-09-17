@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Server Error — {{ site_settings.store_name }}{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto px-4 py-28 text-center">
+  <p class="font-serif text-8xl font-bold text-maroon">500</p>
+  <h1 class="font-serif text-2xl font-bold mt-4 mb-3">Something Went Wrong</h1>
+  <p class="text-charcoal/60 mb-8">We're having a technical issue. Please try again in a moment.</p>
+  <a href="/" class="btn-primary inline-block">Back to Home</a>
+</div>
+{% endblock %}

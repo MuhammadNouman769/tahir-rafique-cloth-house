@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load shop_extras %}
+{% block title %}Order Confirmed — {{ site_settings.store_name }}{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+  <div class="w-20 h-20 mx-auto rounded-full bg-green-100 flex items-center justify-center mb-6">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+    </svg>
+  </div>
+  <h1 class="font-serif text-3xl font-bold mb-2">Order Received!</h1>
+  <p class="text-charcoal/60 mb-1">Your order number is</p>
+  <p class="font-serif text-2xl font-bold text-golddark mb-6">{{ order.order_number }}</p>
+  <p class="text-charcoal/70 mb-8 max-w-md mx-auto">
+    We've saved your order. To confirm it, please send us the pre-filled message on WhatsApp —
+    our team will verify details and get your order moving.
+  </p>
+
+  <a href="{{ whatsapp_url }}" target="_blank" rel="noopener"
+     class="btn-whatsapp inline-flex items-center gap-2 px-8 py-4 rounded">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="20" height="20" fill="#fff">
+      <path d="M16.001 3C9.373 3 4 8.373 4 15c0 2.362.655 4.57 1.797 6.457L4 29l7.73-1.766A11.94 11.94 0 0016.001 27C22.628 27 28 21.627 28 15S22.628 3 16.001 3zm6.29 16.855c-.267.75-1.32 1.372-2.164 1.552-.575.122-1.326.22-3.856-.826-3.235-1.34-5.316-4.61-5.478-4.826-.156-.216-1.31-1.744-1.31-3.328 0-1.583.833-2.361 1.128-2.686.267-.293.583-.366.778-.366.195 0 .39.002.56.01.18.008.42-.068.657.502.267.646.906 2.229.984 2.39.078.16.13.35.026.566-.104.216-.156.35-.31.54-.156.19-.328.424-.468.57-.156.16-.32.334-.138.656.182.322.81 1.336 1.74 2.164 1.196 1.067 2.204 1.397 2.527 1.554.322.156.51.13.7-.078.19-.207.81-.943 1.026-1.267.216-.323.432-.27.727-.163.294.104 1.87.882 2.19 1.043.323.16.538.24.618.375.078.135.078.784-.19 1.534z"/>
+    </svg>
+    Confirm Order on WhatsApp
+  </a>
+
+  <div class="mt-10 border-t border-line pt-8 text-left max-w-md mx-auto">
+    <h2 class="font-serif font-bold text-lg mb-3">Order Summary</h2>
+    <div class="space-y-2 text-sm">
+      {% for item in order.items.all %}
+      <div class="flex justify-between">
+        <span>{{ item.product_name }} x{{ item.quantity }}{% if item.size %} ({{ item.size }}{% if item.color %}, {{ item.color }}{% endif %}){% endif %}</span>
+        <span>{{ item.subtotal|currency:site_settings.currency_symbol }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="border-t border-line mt-3 pt-3 space-y-1 text-sm">
+      <div class="flex justify-between"><span>Subtotal</span><span>{{ order.subtotal|currency:site_settings.currency_symbol }}</span></div>
+      <div class="flex justify-between"><span>Delivery</span><span>{{ order.delivery_charges|currency:site_settings.currency_symbol }}</span></div>
+      <div class="flex justify-between font-bold text-base"><span>Total</span><span>{{ order.total|currency:site_settings.currency_symbol }}</span></div>
+    </div>
+  </div>
+
+  <a href="{% url 'products:shop' %}" class="inline-block mt-8 text-sm text-golddark underline">Continue Shopping</a>
+</div>
+
+<script>
+  // Auto-open WhatsApp once, so the flow feels seamless
+  window.addEventListener('load', function () {
+    setTimeout(function () { window.open("{{ whatsapp_url|escapejs }}", "_blank"); }, 600);
+  });
+</script>
+{% endblock %}
