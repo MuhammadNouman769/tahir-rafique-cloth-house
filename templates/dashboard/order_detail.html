@@ -1,0 +1,50 @@
+{% extends 'dashboard/base.html' %}{% load dash_extras %}
+{% block title %}{{ order.order_number }}{% endblock %}{% block heading %}Order {{ order.order_number }}{% endblock %}
+{% block topbar_actions %}<a class="btn sm" href="{% url 'dashboard:orders' %}">← Orders</a><a class="btn sm" target="_blank" href="{% url 'dashboard:order_invoice' order.pk %}">{% icon 'print' %}Invoice</a>{% endblock %}
+{% block content %}
+<div class="card"><div class="card-b">
+  <div class="row sp-b" style="margin-bottom:14px"><div><span class="pill {{ order.status|status_color }}">{{ order.get_status_display }}</span>
+    <span class="muted" style="margin-left:8px">Placed {{ order.created_at|date:"d M Y, H:i" }}</span></div>
+    <form method="post" action="{% url 'dashboard:order_status' order.pk %}" class="row">{% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}">
+      {% if order.status == 'pending' %}<button class="btn primary sm" name="status" value="confirmed">Confirm order</button>
+      {% elif order.status == 'confirmed' %}<button class="btn primary sm" name="status" value="processing">Start processing</button>
+      {% elif order.status == 'processing' %}<button class="btn primary sm" name="status" value="shipped">Mark shipped</button>
+      {% elif order.status == 'shipped' %}<button class="btn primary sm" name="status" value="delivered">Mark delivered</button>{% endif %}
+      {% if order.status != 'cancelled' and order.status != 'delivered' %}<button class="btn danger sm" name="status" value="cancelled" data-action="confirm" data-message="Cancel this order? Items will be returned to stock.">Cancel order</button>{% endif %}
+    </form></div>
+  <div class="timeline {% if cancelled %}cancelled{% endif %}">{% for s in steps %}<div class="st {% if s.done and not cancelled or s.done and cancelled %}done{% endif %}">{{ s.label }}</div>{% endfor %}</div>
+  {% if cancelled %}<div class="muted small" style="margin-top:8px">This order was cancelled.</div>{% endif %}
+</div></div>
+
+<div class="grid g-form mt">
+  <div>
+    <div class="card"><div class="card-h"><h2>Items</h2></div><div class="card-b flush tbl-wrap" style="margin-top:12px"><table class="tbl"><thead><tr><th>Product</th><th>Variant</th><th class="num">Price</th><th class="num">Qty</th><th class="num">Subtotal</th></tr></thead><tbody>
+      {% for it in order.items.all %}<tr><td><div class="cell-prod">{% if it.product and it.product.primary_image %}<img class="thumb" src="{{ it.product.primary_image.image.url }}" alt="">{% else %}<div class="thumb"></div>{% endif %}
+        <div><b>{% if it.product %}<a href="{% url 'dashboard:product_edit' it.product.pk %}">{{ it.product_name }}</a>{% else %}{{ it.product_name }}{% endif %}</b><span class="muted small">{{ it.product.sku|default:"(product removed)" }}</span></div></div></td>
+        <td>{{ it.size|default:"—" }}{% if it.color %} · {{ it.color }}{% endif %}</td><td class="num">{{ it.price|money }}</td><td class="num">{{ it.quantity }}</td><td class="num"><b>{{ it.subtotal|money }}</b></td></tr>{% endfor %}
+      </tbody></table></div>
+      <div class="card-b" style="border-top:1px solid var(--line)"><dl class="kv" style="grid-template-columns:1fr auto;max-width:340px;margin-left:auto">
+        <dt>Subtotal</dt><dd>{{ order.subtotal|money }}</dd>{% if order.discount %}<dt>Discount</dt><dd>− {{ order.discount|money }}</dd>{% endif %}
+        <dt>Delivery</dt><dd>{% if order.delivery_charges %}{{ order.delivery_charges|money }}{% else %}Free{% endif %}</dd>
+        <dt><b>Total</b></dt><dd style="font-size:17px"><b>{{ order.total|money }}</b></dd></dl></div></div>
+
+    <div class="card mt"><div class="card-h"><h2>Edit order details</h2></div><div class="card-b">
+      <form method="post">{% csrf_token %}<div class="fgrid">
+        {% for field in form %}{% if field.name == 'address' or field.name == 'notes' %}{% include 'dashboard/_field.html' with full=True %}{% else %}{% include 'dashboard/_field.html' %}{% endif %}{% endfor %}</div>
+        <button class="btn primary">Save changes</button></form></div></div>
+  </div>
+
+  <div class="grid">
+    <div class="card"><div class="card-h"><h2>Customer</h2></div><div class="card-b">
+      <b style="font-size:15px">{{ order.full_name }}</b>
+      <dl class="kv" style="grid-template-columns:80px 1fr;margin-top:10px"><dt>Phone</dt><dd>{{ order.phone }}</dd>
+        {% if order.whatsapp %}<dt>WhatsApp</dt><dd>{{ order.whatsapp }}</dd>{% endif %}{% if order.email %}<dt>Email</dt><dd>{{ order.email }}</dd>{% endif %}
+        <dt>Account</dt><dd>{% if order.customer %}<a href="{% url 'dashboard:customer_detail' customer_key %}">{{ order.customer.username }}</a>{% else %}Guest checkout{% endif %}</dd></dl>
+      <div class="row" style="margin-top:14px"><a class="btn sm" target="_blank" href="{{ whatsapp_url }}">{% icon 'whatsapp' %}WhatsApp</a><a class="btn sm" href="tel:{{ order.phone }}">Call</a></div></div></div>
+    <div class="card"><div class="card-h"><h2>Delivery address</h2></div><div class="card-b">
+      <div>{{ order.address }}</div><div>{% if order.area %}{{ order.area }}, {% endif %}{{ order.city }}{% if order.postal_code %} {{ order.postal_code }}{% endif %}</div>
+      {% if order.notes %}<div class="alert info" style="margin:12px 0 0"><span><b>Note:</b> {{ order.notes }}</span></div>{% endif %}</div></div>
+    <div class="card"><div class="card-b"><form method="post" action="{% url 'dashboard:order_delete' order.pk %}" data-confirm="Permanently delete this order? This cannot be undone.">{% csrf_token %}<button class="btn danger" style="width:100%;justify-content:center">Delete order</button></form></div></div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,8 @@
+{% extends 'dashboard/base.html' %}{% load dash_extras %}
+{% block title %}Subscribers{% endblock %}{% block heading %}Newsletter subscribers{% endblock %}
+{% block topbar_actions %}<a class="btn sm" href="?export=csv">{% icon 'download' %}Export CSV</a>{% endblock %}
+{% block content %}<div class="muted" style="margin-bottom:12px"><b>{{ total }}</b> subscribers</div>
+<form class="filters" method="get"><input class="input search" name="q" value="{{ q }}" placeholder="Search email…"><button class="btn">Search</button></form>
+<div class="card"><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Email</th><th>Subscribed</th><th></th></tr></thead><tbody>
+{% for s in items %}<tr><td>{{ s.email }}</td><td class="muted">{{ s.subscribed_at|date:"d M Y" }}</td><td class="num"><form method="post" action="{% url 'dashboard:subscriber_delete' s.pk %}" data-confirm="Remove this subscriber?">{% csrf_token %}<button class="btn sm danger">Remove</button></form></td></tr>
+{% empty %}<tr><td colspan="3"><div class="empty"><b>No subscribers yet</b></div></td></tr>{% endfor %}</tbody></table></div>{% include 'dashboard/_pager.html' with page_obj=items %}</div>{% endblock %}

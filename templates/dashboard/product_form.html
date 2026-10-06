@@ -1,0 +1,42 @@
+{% extends 'dashboard/base.html' %}{% load dash_extras %}
+{% block title %}{% if product %}Edit {{ product.name }}{% else %}New product{% endif %}{% endblock %}
+{% block heading %}{% if product %}Edit product{% else %}New product{% endif %}{% endblock %}
+{% block topbar_actions %}<a class="btn sm" href="{% url 'dashboard:products' %}">← Products</a>{% endblock %}
+{% block content %}
+<form method="post" enctype="multipart/form-data">{% csrf_token %}
+{% if form.non_field_errors %}<div class="alert error">{{ form.non_field_errors }}</div>{% endif %}
+<div class="grid g-form">
+  <div class="grid">
+    <div class="card"><div class="card-h"><h2>Basic information</h2></div><div class="card-b"><div class="fgrid">
+      <div class="full">{% include 'dashboard/_field.html' with field=form.name %}</div>
+      {% include 'dashboard/_field.html' with field=form.sku %}{% include 'dashboard/_field.html' with field=form.category %}
+      {% include 'dashboard/_field.html' with field=form.brand %}{% include 'dashboard/_field.html' with field=form.tags %}
+      <div class="full">{% include 'dashboard/_field.html' with field=form.short_description %}</div>
+      <div class="full">{% include 'dashboard/_field.html' with field=form.description %}</div>
+      {% include 'dashboard/_field.html' with field=form.material %}<div></div>
+      <div class="full">{% include 'dashboard/_field.html' with field=form.care_instructions %}</div></div></div></div>
+
+    <div class="card"><div class="card-h"><div><h2>Images</h2><div class="sub">First image marked "primary" is the main photo; the second is the hover image.</div></div></div><div class="card-b">
+      {{ formset.management_form }}{% if formset.non_form_errors %}<div class="err">{{ formset.non_form_errors }}</div>{% endif %}
+      {% for f in formset %}<div class="formset-row">{{ f.id }}
+        <div>{% if f.instance.pk and f.instance.image %}<img class="thumb" src="{{ f.instance.image.url }}" alt="">{% else %}<img class="thumb" id="prev-{{ forloop.counter0 }}" style="display:none" alt="">{% endif %}</div>
+        <div>{{ f.image }}{% for e in f.image.errors %}<div class="err">{{ e }}</div>{% endfor %}</div><div>{{ f.alt_text }}</div>
+        <label class="row small" style="gap:5px">{{ f.is_primary }}Primary</label><div style="width:70px">{{ f.order }}</div>
+        {% if f.instance.pk %}<label class="row small" style="gap:5px;color:var(--red)">{{ f.DELETE }}Remove</label>{% else %}<span></span>{% endif %}</div>{% endfor %}
+    </div></div>
+  </div>
+
+  <div class="grid" style="align-content:start">
+    <div class="card"><div class="card-h"><h2>Pricing &amp; stock</h2></div><div class="card-b">
+      {% include 'dashboard/_field.html' with field=form.price %}{% include 'dashboard/_field.html' with field=form.sale_price %}{% include 'dashboard/_field.html' with field=form.stock_quantity %}</div></div>
+    <div class="card"><div class="card-h"><h2>Visibility</h2></div><div class="card-b">
+      {% include 'dashboard/_field.html' with field=form.available %}{% include 'dashboard/_field.html' with field=form.featured %}{% include 'dashboard/_field.html' with field=form.bestseller %}
+      {% include 'dashboard/_field.html' with field=form.new_arrival %}{% include 'dashboard/_field.html' with field=form.deal_of_day %}</div></div>
+    <div class="card"><div class="card-h"><h2>Variants</h2></div><div class="card-b">{% include 'dashboard/_field.html' with field=form.sizes %}{% include 'dashboard/_field.html' with field=form.colors %}</div></div>
+    {% if product %}<div class="card"><div class="card-b"><a class="btn" style="width:100%;justify-content:center" target="_blank" href="{{ product.get_absolute_url }}">View on storefront</a></div></div>{% endif %}
+  </div>
+</div>
+<div class="sticky-bar"><button class="btn primary">Save product</button><a class="btn" href="{% url 'dashboard:products' %}">Cancel</a>
+  {% if product %}<span style="flex:1"></span><button class="btn danger" formaction="{% url 'dashboard:product_delete' product.pk %}" formnovalidate data-action="confirm" data-message="Delete this product permanently? Past orders keep their history.">Delete</button>{% endif %}</div>
+</form>
+{% endblock %}

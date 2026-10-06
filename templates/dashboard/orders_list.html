@@ -1,0 +1,40 @@
+{% extends 'dashboard/base.html' %}{% load dash_extras %}
+{% block title %}Orders{% endblock %}{% block heading %}Orders{% endblock %}
+{% block topbar_actions %}<a class="btn sm" href="?{% qs_replace export='csv' page='' %}">{% icon 'download' %}Export CSV</a>{% endblock %}
+{% block content %}
+<div class="tabs">{% for t in tabs %}<a href="?{% qs_replace status=t.key page='' %}" class="{% if status == t.key %}on{% endif %}">{{ t.label }}<span class="n">{{ t.count }}</span></a>{% endfor %}</div>
+
+<form class="filters" method="get">
+  {% if status %}<input type="hidden" name="status" value="{{ status }}">{% endif %}
+  <input class="input search" name="q" value="{{ q }}" placeholder="Search order #, customer, phone, product…">
+  <select class="input" name="period" data-autosubmit><option value="">Any date</option>
+    <option value="today" {% if period == 'today' %}selected{% endif %}>Today</option><option value="7" {% if period == '7' %}selected{% endif %}>Last 7 days</option>
+    <option value="30" {% if period == '30' %}selected{% endif %}>Last 30 days</option><option value="90" {% if period == '90' %}selected{% endif %}>Last 90 days</option></select>
+  <select class="input" name="city" data-autosubmit><option value="">All cities</option>{% for c in cities %}<option {% if c == city %}selected{% endif %}>{{ c }}</option>{% endfor %}</select>
+  <button class="btn">Search</button>
+  {% if q or period or city %}<a class="btn ghost" href="?{% if status %}status={{ status }}{% endif %}">Clear</a>{% endif %}
+</form>
+
+<div class="card" data-bulk>
+  <form method="post" action="{% url 'dashboard:orders_bulk' %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
+  <div class="bulk"><b><span data-count>0</span> selected</b>
+    <select class="input" name="status" style="width:auto">{% for k, l in status_choices %}<option value="{{ k }}">Mark as {{ l }}</option>{% endfor %}</select>
+    <button class="btn sm primary">Apply</button></div>
+  <div class="tbl-wrap"><table class="tbl"><thead><tr>
+    <th style="width:36px"><input type="checkbox" class="check" data-check-all></th><th>Order</th>
+    <th><a href="?{% qs_replace sort=sort|yesno:'-created_at,created_at' %}">Date</a></th><th>Customer</th><th>Items</th><th>Status</th>
+    <th class="num"><a href="?{% if sort == '-total' %}{% qs_replace sort='total' %}{% else %}{% qs_replace sort='-total' %}{% endif %}">Total</a></th><th></th></tr></thead><tbody>
+  {% for o in orders %}<tr>
+    <td><input type="checkbox" class="check" name="ids" value="{{ o.pk }}" data-row-check></td>
+    <td><a href="{% url 'dashboard:order_detail' o.pk %}" class="mono"><b>{{ o.order_number }}</b></a></td>
+    <td>{{ o.created_at|date:"d M Y" }}<div class="muted small">{{ o.created_at|time:"H:i" }}</div></td>
+    <td><b>{{ o.full_name }}</b><div class="muted small">{{ o.phone }} · {{ o.city }}</div></td>
+    <td>{{ o.item_count|default:0 }}</td>
+    <td><span class="pill {{ o.status|status_color }}">{{ o.get_status_display }}</span></td>
+    <td class="num"><b>{{ o.total|money }}</b></td>
+    <td class="num"><a class="btn sm" href="{% url 'dashboard:order_detail' o.pk %}">Open</a></td></tr>
+  {% empty %}<tr><td colspan="8"><div class="empty"><b>No orders found</b>Try changing the filters.</div></td></tr>{% endfor %}
+  </tbody></table></div></form>
+  {% include 'dashboard/_pager.html' with page_obj=orders %}
+</div>
+{% endblock %}

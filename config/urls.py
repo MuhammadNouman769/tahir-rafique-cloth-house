@@ -1,10 +1,9 @@
-from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.sitemaps.views import sitemap
 from apps.products.sitemaps import ProductSitemap, CategorySitemap
-from django.views.generic import TemplateView
+from django.views.generic import RedirectView, TemplateView
 
 sitemaps = {
     'products': ProductSitemap,
@@ -12,7 +11,8 @@ sitemaps = {
 }
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('dashboard/', include('apps.dashboard.urls')),
+    path('admin/', RedirectView.as_view(pattern_name='dashboard:overview', permanent=False)),
     path('', include('apps.pages.urls')),
     path('', include('apps.core.urls')),
     path('products/', include('apps.products.urls')),

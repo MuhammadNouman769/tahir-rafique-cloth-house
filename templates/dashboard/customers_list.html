@@ -1,0 +1,24 @@
+{% extends 'dashboard/base.html' %}{% load dash_extras %}
+{% block title %}Customers{% endblock %}{% block heading %}Customers{% endblock %}
+{% block topbar_actions %}<a class="btn sm" href="?{% qs_replace export='csv' page='' %}">{% icon 'download' %}Export CSV</a>{% endblock %}
+{% block content %}
+<div class="grid g-kpi" style="margin-bottom:16px">
+  <div class="card kpi"><div class="l">Total customers</div><div class="v">{{ summary.total }}</div></div>
+  <div class="card kpi"><div class="l">Have ordered</div><div class="v">{{ summary.buyers }}</div></div>
+  <div class="card kpi"><div class="l">Repeat customers</div><div class="v">{{ summary.repeat }}</div><span class="delta flat">{{ summary.repeat_rate }}% of buyers</span></div>
+  <div class="card kpi"><div class="l">VIP</div><div class="v" style="color:var(--gold-d)">{{ summary.vip }}</div><span class="vs">Rs. 30,000+ or 5+ orders</span></div>
+</div>
+<form class="filters" method="get"><input class="input search" name="q" value="{{ q }}" placeholder="Search name, phone, email, city…">
+  <select class="input" name="segment" data-autosubmit><option value="">All segments</option>{% for s in segments %}<option {% if s == segment %}selected{% endif %}>{{ s }}</option>{% endfor %}</select>
+  <select class="input" name="sort" data-autosubmit><option value="-spent" {% if sort == '-spent' %}selected{% endif %}>Top spenders</option><option value="-orders" {% if sort == '-orders' %}selected{% endif %}>Most orders</option><option value="-last" {% if sort == '-last' %}selected{% endif %}>Recently active</option><option value="-first" {% if sort == '-first' %}selected{% endif %}>Newest</option><option value="name" {% if sort == 'name' %}selected{% endif %}>Name A–Z</option></select>
+  <button class="btn">Search</button></form>
+<div class="card"><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Customer</th><th>Contact</th><th>City</th><th class="num">Orders</th><th class="num">Total spent</th><th class="num">Avg. order</th><th>Segment</th><th>Last order</th><th></th></tr></thead><tbody>
+{% for c in customers %}<tr>
+  <td><div class="row" style="gap:10px;flex-wrap:nowrap"><div class="avatar" style="width:32px;height:32px;font-size:12px">{{ c.name|slice:":1"|upper }}</div><div><a href="{% url 'dashboard:customer_detail' c.key %}"><b>{{ c.name }}</b></a><div class="muted small">{% if c.registered %}Registered{% else %}Guest{% endif %}</div></div></div></td>
+  <td>{{ c.phone|default:"—" }}<div class="muted small">{{ c.email }}</div></td><td>{{ c.city|default:"—" }}</td>
+  <td class="num">{{ c.orders }}</td><td class="num"><b>{{ c.spent|money }}</b></td><td class="num">{{ c.aov|money }}</td>
+  <td><span class="pill {% if c.segment == 'VIP' %}amber{% elif c.segment == 'Returning' %}green{% elif c.segment == 'New' %}blue{% else %}gray{% endif %}">{{ c.segment }}</span></td>
+  <td class="muted small">{% if c.last %}{{ c.last|date:"d M Y" }}{% else %}—{% endif %}</td><td class="num"><a class="btn sm" href="{% url 'dashboard:customer_detail' c.key %}">View</a></td></tr>
+{% empty %}<tr><td colspan="9"><div class="empty"><b>No customers yet</b>Customers appear here after they order or register.</div></td></tr>{% endfor %}</tbody></table></div>
+{% include 'dashboard/_pager.html' with page_obj=customers %}</div>
+{% endblock %}

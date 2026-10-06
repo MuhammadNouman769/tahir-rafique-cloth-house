@@ -1,0 +1,59 @@
+{% load static dash_extras %}<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Dashboard{% endblock %} · {{ site_settings.store_name }}</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="{% static 'img/logo.svg' %}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'dashboard/dashboard.css' %}">
+<script>try{var t=localStorage.getItem('dash-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+{% block head %}{% endblock %}
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-mark">T</div><div><b>{{ site_settings.store_name|truncatechars:24 }}</b><small>Store dashboard</small></div></div>
+    <nav class="nav">
+      <div class="nav-label">Overview</div>
+      <a href="{% url 'dashboard:overview' %}" class="{% if page == 'overview' %}active{% endif %}">{% icon 'home' %}Dashboard</a>
+      <a href="{% url 'dashboard:analytics' %}" class="{% if page == 'analytics' %}active{% endif %}">{% icon 'chart' %}Analytics</a>
+      <div class="nav-label">Sales</div>
+      <a href="{% url 'dashboard:orders' %}" class="{% if page == 'orders' %}active{% endif %}">{% icon 'bag' %}Orders{% if nav_pending_orders %}<span class="badge">{{ nav_pending_orders }}</span>{% endif %}</a>
+      <a href="{% url 'dashboard:customers' %}" class="{% if page == 'customers' %}active{% endif %}">{% icon 'users' %}Customers</a>
+      <a href="{% url 'dashboard:reviews' %}" class="{% if page == 'reviews' %}active{% endif %}">{% icon 'star' %}Reviews{% if nav_pending_reviews %}<span class="badge">{{ nav_pending_reviews }}</span>{% endif %}</a>
+      <div class="nav-label">Catalog</div>
+      <a href="{% url 'dashboard:products' %}" class="{% if page == 'products' %}active{% endif %}">{% icon 'box' %}Products</a>
+      <a href="{% url 'dashboard:crud_list' 'categories' %}" class="{% if page == 'catalog' %}active{% endif %}">{% icon 'tag' %}Categories &amp; Brands</a>
+      <div class="nav-label">Engage</div>
+      <a href="{% url 'dashboard:messages' %}" class="{% if page == 'messages' %}active{% endif %}">{% icon 'mail' %}Messages{% if nav_unread_messages %}<span class="badge">{{ nav_unread_messages }}</span>{% endif %}</a>
+      <a href="{% url 'dashboard:subscribers' %}" class="{% if page == 'subscribers' %}active{% endif %}">{% icon 'mail' %}Subscribers</a>
+      <a href="{% url 'dashboard:crud_list' 'hero' %}" class="{% if page == 'content' %}active{% endif %}">{% icon 'image' %}Storefront content</a>
+      <div class="nav-label">Store</div>
+      <a href="{% url 'dashboard:settings' %}" class="{% if page == 'settings' %}active{% endif %}">{% icon 'cog' %}Settings</a>
+      <a href="{% url 'pages:home' %}" target="_blank">{% icon 'store' %}View storefront</a>
+    </nav>
+    <div class="side-foot">Signed in as <b>{{ request.user.username }}</b></div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="iconbtn menu-btn" data-action="menu" aria-label="Menu">{% icon 'menu' %}</button>
+      <h1>{% block heading %}{% endblock %}</h1>
+      <div class="sp"></div>
+      {% block topbar_actions %}{% endblock %}
+      <button class="iconbtn" data-action="theme" title="Toggle dark mode">{% icon 'moon' %}</button>
+      <div class="userbox"><div class="avatar">{{ request.user.username|slice:":1"|upper }}</div><div>{{ request.user.get_full_name|default:request.user.username }}<small>Administrator</small></div></div>
+      <form method="post" action="{% url 'dashboard:logout' %}">{% csrf_token %}<button class="iconbtn" title="Sign out">{% icon 'out' %}</button></form>
+    </header>
+    <div class="content">
+      {% for m in messages %}<div class="alert {{ m.tags }}"><span>{{ m }}</span><button data-action="dismiss" type="button">×</button></div>{% endfor %}
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</div>
+<script src="{% static 'dashboard/dashboard.js' %}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

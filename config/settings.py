@@ -11,7 +11,6 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost', cast=Csv())
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -29,6 +28,7 @@ INSTALLED_APPS = [
     'apps.orders',
     'apps.contact',
     'apps.pages',
+    'apps.dashboard',
 ]
 
 MIDDLEWARE = [
@@ -56,6 +56,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'apps.core.context_processors.site_settings',
                 'apps.cart.context_processors.cart',
+                'apps.dashboard.context.dashboard_counts',
             ],
         },
     },

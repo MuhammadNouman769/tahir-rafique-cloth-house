@@ -1,0 +1,13 @@
+{% load dash_extras %}{% if page_obj.paginator.num_pages > 1 or page_obj.paginator.count %}
+<div class="pager">
+  <span class="muted small">Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ page_obj.paginator.count }}</span>
+  <div class="pages">
+    {% if page_obj.has_previous %}<a href="?{% qs_replace page=page_obj.previous_page_number %}">‹</a>{% endif %}
+    {% for n in page_obj.paginator.page_range %}
+      {% if n == page_obj.number %}<span class="cur">{{ n }}</span>
+      {% elif n <= 2 or n > page_obj.paginator.num_pages|add:'-2' or n >= page_obj.number|add:'-1' and n <= page_obj.number|add:'1' %}<a href="?{% qs_replace page=n %}">{{ n }}</a>
+      {% elif n == 3 or n == page_obj.paginator.num_pages|add:'-2' %}<span class="muted">…</span>{% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}<a href="?{% qs_replace page=page_obj.next_page_number %}">›</a>{% endif %}
+  </div>
+</div>{% endif %}

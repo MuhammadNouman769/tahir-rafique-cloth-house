@@ -59,7 +59,7 @@ pip install -r requirements.txt
 python manage.py makemigrations
 python manage.py migrate
 
-# 5. Create an admin account
+# 5. Create a dashboard login (any staff/superuser account works)
 python manage.py createsuperuser
 
 # 6. Seed realistic dummy data (30+ products, categories, hero slides, etc.)
@@ -73,7 +73,7 @@ python manage.py runserver
 
 Visit:
 - Storefront: http://127.0.0.1:8000/
-- Admin panel: http://127.0.0.1:8000/admin/
+- Dashboard (staff login): http://127.0.0.1:8000/dashboard/   (`/admin/` now redirects here)
 
 ## 3. Environment Variables (`.env`)
 
@@ -233,3 +233,34 @@ JSON payload or a partial HTML template instead of a full page — see
   before deploying.
 - Consider Celery + a task queue if you add order-confirmation emails/SMS
   later.
+
+
+## 10. Store Dashboard (replaces Django Admin)
+
+Django's built-in admin has been **removed**. Everything is managed from `/dashboard/`
+(staff accounts only — `is_staff=True`).
+
+| Page | What it does |
+|------|--------------|
+| Dashboard | KPI cards with period-over-period change, revenue/orders chart, order status, category sales, best sellers, low stock, recent orders, reviews to moderate |
+| Analytics | Monthly + daily revenue, top cities, busiest weekday/hour, top products, customer & rating summary (7d / 30d / 90d / 12m / all time) |
+| Orders | Status tabs, search, date/city filters, sorting, bulk status change, CSV export, order detail with progress timeline, WhatsApp/call buttons, printable invoice. Cancelling an order returns items to stock |
+| Customers | Registered + guest buyers merged (guests grouped by phone), segments (VIP / Returning / New / Lead), lifetime value, order history, CSV export |
+| Reviews | Approve / hide / delete (single or bulk); product star rating on the storefront is recalculated automatically |
+| Products | Filters, inline stock/flags, bulk show/hide/feature/delete, full add/edit form with multi-image upload |
+| Categories, Brands, Tags | Add / edit / delete |
+| Messages, Subscribers | Inbox with read/unread, reply by email/WhatsApp, subscriber CSV export |
+| Storefront content | Hero slides, announcement banners, testimonials, gallery, About page |
+| Settings | Store name/logo, WhatsApp number, delivery charges, currency, social links |
+
+Dark mode toggle is in the top bar. Chart.js is bundled locally (`static/dashboard/chart.umd.js`), so charts work offline.
+
+### Demo / dummy data
+
+```bash
+python manage.py seed_demo            # ~70 customers, 260 orders over 6 months, reviews, messages, subscribers
+python manage.py seed_demo --reset    # wipe previous demo data and regenerate
+python manage.py seed_demo --clear    # remove ALL demo data (real data is untouched)
+```
+Demo customers use usernames starting with `demo_` (password `demo12345`). Remove the demo data
+before going live.

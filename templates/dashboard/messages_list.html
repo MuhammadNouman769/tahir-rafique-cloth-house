@@ -1,0 +1,14 @@
+{% extends 'dashboard/base.html' %}{% load dash_extras %}
+{% block title %}Messages{% endblock %}{% block heading %}Customer messages{% endblock %}
+{% block content %}
+<div class="tabs"><a href="?" class="{% if not status %}on{% endif %}">All<span class="n">{{ total }}</span></a><a href="?status=unread" class="{% if status == 'unread' %}on{% endif %}">Unread<span class="n">{{ unread }}</span></a><a href="?status=read" class="{% if status == 'read' %}on{% endif %}">Read</a></div>
+<form class="filters" method="get">{% if status %}<input type="hidden" name="status" value="{{ status }}">{% endif %}<input class="input search" name="q" value="{{ q }}" placeholder="Search messages…"><button class="btn">Search</button></form>
+<div class="card" data-bulk><form method="post" action="{% url 'dashboard:messages_action' %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
+<div class="bulk"><b><span data-count>0</span> selected</b><button class="btn sm" name="action" value="read">Mark read</button><button class="btn sm" name="action" value="unread">Mark unread</button><button class="btn sm danger" name="action" value="delete" data-action="confirm" data-message="Delete selected messages?">Delete</button></div>
+<div class="tbl-wrap"><table class="tbl"><tbody>
+{% for m in items %}<tr><td style="width:36px"><input type="checkbox" class="check" name="ids" value="{{ m.pk }}" data-row-check></td>
+  <td style="width:220px">{% if not m.is_read %}<span class="pill blue nodot">New</span> {% endif %}<a href="{% url 'dashboard:message_detail' m.pk %}"><b>{{ m.name }}</b></a><div class="muted small">{{ m.email }}</div></td>
+  <td><a href="{% url 'dashboard:message_detail' m.pk %}"><b>{{ m.subject }}</b></a><div class="muted">{{ m.message|truncatechars:110 }}</div></td><td class="muted small" style="white-space:nowrap">{{ m.created_at|date:"d M Y, H:i" }}</td></tr>
+{% empty %}<tr><td><div class="empty"><b>Inbox is empty</b>Messages from the Contact page land here.</div></td></tr>{% endfor %}</tbody></table></div></form>
+{% include 'dashboard/_pager.html' with page_obj=items %}</div>
+{% endblock %}

@@ -94,6 +94,7 @@
     <a href="{% url 'products:shop' %}" class="py-3 border-b border-line">All Products</a>
     <a href="{% url 'contact:contact' %}" class="py-3 border-b border-line">Contact Us</a>
     {% if user.is_authenticated %}
+    {% if user.is_staff %}<a href="{% url 'dashboard:overview' %}" class="py-3 border-b border-line text-golddark font-semibold">Dashboard</a>{% endif %}
     <a href="{% url 'orders:history' %}" class="py-3 border-b border-line">My Orders</a>
     <a href="{% url 'accounts:logout' %}" class="py-3 text-maroon">Logout</a>
     {% else %}

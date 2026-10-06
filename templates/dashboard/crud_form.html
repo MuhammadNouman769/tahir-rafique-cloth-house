@@ -1,0 +1,6 @@
+{% extends 'dashboard/base.html' %}{% load dash_extras %}
+{% block title %}{{ cfg.singular }}{% endblock %}{% block heading %}{% if obj %}Edit{% else %}New{% endif %} {{ cfg.singular|lower }}{% endblock %}
+{% block topbar_actions %}<a class="btn sm" href="{% url 'dashboard:crud_list' kind %}">← Back</a>{% endblock %}
+{% block content %}<form method="post" enctype="multipart/form-data" style="max-width:760px">{% csrf_token %}{% if form.non_field_errors %}<div class="alert error">{{ form.non_field_errors }}</div>{% endif %}
+<div class="card"><div class="card-b">{% for field in form %}{% include 'dashboard/_field.html' %}{% endfor %}</div></div>
+<div class="sticky-bar"><button class="btn primary">Save</button><a class="btn" href="{% url 'dashboard:crud_list' kind %}">Cancel</a></div></form>{% endblock %}

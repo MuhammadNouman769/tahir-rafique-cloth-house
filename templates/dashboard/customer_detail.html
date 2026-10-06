@@ -1,0 +1,22 @@
+{% extends 'dashboard/base.html' %}{% load dash_extras %}
+{% block title %}{{ info.name }}{% endblock %}{% block heading %}Customer{% endblock %}
+{% block topbar_actions %}<a class="btn sm" href="{% url 'dashboard:customers' %}">← Customers</a>{% endblock %}
+{% block content %}
+<div class="grid g-form">
+  <div class="grid">
+    <div class="grid g-kpi"><div class="card kpi"><div class="l">Lifetime value</div><div class="v">{{ spent|money }}</div></div><div class="card kpi"><div class="l">Orders</div><div class="v">{{ order_count }}</div></div><div class="card kpi"><div class="l">Avg. order</div><div class="v">{{ aov|money }}</div></div></div>
+    <div class="card"><div class="card-h"><h2>Order history</h2></div><div class="card-b flush tbl-wrap" style="margin-top:12px"><table class="tbl"><thead><tr><th>Order</th><th>Date</th><th>Items</th><th>Status</th><th class="num">Total</th></tr></thead><tbody>
+    {% for o in orders %}<tr><td><a class="mono" href="{% url 'dashboard:order_detail' o.pk %}"><b>{{ o.order_number }}</b></a></td><td>{{ o.created_at|date:"d M Y" }}</td>
+      <td class="muted small">{% for it in o.items.all %}{{ it.product_name|truncatechars:26 }} ×{{ it.quantity }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+      <td><span class="pill {{ o.status|status_color }}">{{ o.get_status_display }}</span></td><td class="num"><b>{{ o.total|money }}</b></td></tr>
+    {% empty %}<tr><td colspan="5"><div class="empty">No orders yet.</div></td></tr>{% endfor %}</tbody></table></div></div>
+  </div>
+  <div class="grid" style="align-content:start">
+    <div class="card"><div class="card-b"><div class="row" style="gap:12px;margin-bottom:12px"><div class="avatar" style="width:48px;height:48px;font-size:18px">{{ info.name|slice:":1"|upper }}</div>
+      <div><b style="font-size:16px">{{ info.name }}</b><div class="muted small">{% if info.registered %}Registered account{% else %}Guest buyer{% endif %}</div></div></div>
+      <dl class="kv" style="grid-template-columns:80px 1fr"><dt>Phone</dt><dd>{{ info.phone|default:"—" }}</dd><dt>Email</dt><dd>{{ info.email|default:"—" }}</dd><dt>City</dt><dd>{{ info.city|default:"—" }}</dd><dt>Address</dt><dd>{{ info.address|default:"—" }}</dd><dt>Since</dt><dd>{{ info.joined|date:"d M Y" }}</dd></dl>
+      {% if whatsapp %}<div class="row" style="margin-top:14px"><a class="btn sm" target="_blank" href="https://wa.me/{{ whatsapp }}">{% icon 'whatsapp' %}WhatsApp</a><a class="btn sm" href="tel:{{ info.phone }}">Call</a></div>{% endif %}</div></div>
+    <div class="card"><div class="card-h"><h2>Favourite products</h2></div><ul class="list" style="margin-top:8px">{% for name, qty in favorites %}<li><span style="flex:1">{{ name }}</span><b>×{{ qty }}</b></li>{% empty %}<li class="muted">No purchases yet.</li>{% endfor %}</ul></div>
+  </div>
+</div>
+{% endblock %}

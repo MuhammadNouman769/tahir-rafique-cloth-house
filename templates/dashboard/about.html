@@ -1,0 +1,5 @@
+{% extends 'dashboard/base.html' %}{% load dash_extras %}
+{% block title %}About page{% endblock %}{% block heading %}About page content{% endblock %}
+{% block content %}{% include 'dashboard/_content_tabs.html' with active='about' %}
+<form method="post" enctype="multipart/form-data" style="max-width:900px">{% csrf_token %}<div class="card"><div class="card-b">
+{% for field in form %}{% include 'dashboard/_field.html' %}{% endfor %}</div></div><div class="sticky-bar"><button class="btn primary">Save</button></div></form>{% endblock %}

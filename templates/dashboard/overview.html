@@ -1,0 +1,65 @@
+{% extends 'dashboard/base.html' %}{% load static dash_extras %}
+{% block title %}Dashboard{% endblock %}{% block heading %}Dashboard{% endblock %}
+{% block topbar_actions %}<a href="{% url 'dashboard:product_new' %}" class="btn primary sm">{% icon 'plus' %}New product</a>{% endblock %}
+{% block content %}
+<div class="row sp-b" style="margin-bottom:16px">
+  <div><h2 style="font-size:20px">Welcome back, {{ request.user.first_name|default:request.user.username }} 👋</h2>
+    <div class="muted">Here's how {{ site_settings.store_name }} is performing.</div></div>
+  {% include 'dashboard/_range.html' %}
+</div>
+
+{% if pending_count or out_of_stock %}
+<div class="alert warning">
+  <span>{% if pending_count %}<b>{{ pending_count }}</b> order{{ pending_count|pluralize }} waiting for confirmation. {% endif %}{% if out_of_stock %}<b>{{ out_of_stock }}</b> product{{ out_of_stock|pluralize }} out of stock.{% endif %}</span>
+  <span>{% if pending_count %}<a class="btn sm" href="{% url 'dashboard:orders' %}?status=pending">Review orders</a>{% endif %}</span>
+</div>{% endif %}
+
+{% include 'dashboard/_kpis.html' %}
+
+<div class="grid g-main mt">
+  <div class="card"><div class="card-h"><div><h2>Revenue &amp; orders</h2><div class="sub">Daily performance, cancelled orders excluded</div></div></div>
+    <div class="card-b"><div class="chart-box"><canvas id="c-daily"></canvas></div>
+      {% if not chart_daily.labels %}<div class="empty"><b>No orders in this period</b>Try a longer range.</div>{% endif %}</div></div>
+  <div class="card"><div class="card-h"><div><h2>Order status</h2><div class="sub">All orders in range</div></div></div>
+    <div class="card-b"><div class="chart-box"><canvas id="c-status"></canvas></div></div></div>
+</div>
+
+<div class="grid g-main mt">
+  <div class="card"><div class="card-h"><h2>Recent orders</h2><a class="btn sm ghost" href="{% url 'dashboard:orders' %}">View all →</a></div>
+    <div class="card-b flush tbl-wrap" style="margin-top:12px"><table class="tbl"><thead><tr><th>Order</th><th>Customer</th><th>Status</th><th class="num">Total</th></tr></thead><tbody>
+    {% for o in recent_orders %}<tr>
+      <td><a class="mono" href="{% url 'dashboard:order_detail' o.pk %}"><b>{{ o.order_number }}</b></a><div class="muted small">{{ o.created_at|timesince }} ago</div></td>
+      <td>{{ o.full_name }}<div class="muted small">{{ o.city }}</div></td>
+      <td><span class="pill {{ o.status|status_color }}">{{ o.get_status_display }}</span></td>
+      <td class="num"><b>{{ o.total|money }}</b></td></tr>
+    {% empty %}<tr><td colspan="4"><div class="empty"><b>No orders yet</b>Orders placed on your storefront will show up here.</div></td></tr>{% endfor %}
+    </tbody></table></div></div>
+
+  <div class="card"><div class="card-h"><div><h2>Sales by category</h2><div class="sub">Revenue share</div></div></div>
+    <div class="card-b"><div class="chart-box sm"><canvas id="c-category"></canvas></div></div></div>
+</div>
+
+<div class="grid g-3 mt">
+  <div class="card"><div class="card-h"><h2>Best sellers</h2><a class="btn sm ghost" href="{% url 'dashboard:analytics' %}">Analytics →</a></div>
+    <ul class="list" style="margin-top:10px">{% for p in top_products %}
+      <li>{% if p.product and p.product.primary_image %}<img class="thumb sq" src="{{ p.product.primary_image.image.url }}" alt="">{% else %}<div class="thumb sq"></div>{% endif %}
+        <div style="min-width:0;flex:1"><b style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.product_name }}</b><span class="muted small">{{ p.units }} sold</span></div>
+        <b>{{ p.revenue|money }}</b></li>
+    {% empty %}<li class="muted">No sales yet.</li>{% endfor %}</ul></div>
+
+  <div class="card"><div class="card-h"><h2>Low stock</h2><a class="btn sm ghost" href="{% url 'dashboard:products' %}?stock=low">All →</a></div>
+    <ul class="list" style="margin-top:10px">{% for p in low_stock %}
+      <li><div style="min-width:0;flex:1"><a href="{% url 'dashboard:product_edit' p.pk %}"><b style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.name }}</b></a><span class="muted small">{{ p.sku }}</span></div>
+        <span class="pill {% if p.stock_quantity == 0 %}red{% else %}amber{% endif %}">{% if p.stock_quantity == 0 %}Out of stock{% else %}{{ p.stock_quantity }} left{% endif %}</span></li>
+    {% empty %}<li class="muted">All products are well stocked 🎉</li>{% endfor %}</ul></div>
+
+  <div class="card"><div class="card-h"><h2>Reviews to moderate</h2><a class="btn sm ghost" href="{% url 'dashboard:reviews' %}?status=pending">All →</a></div>
+    <ul class="list" style="margin-top:10px">{% for r in pending_reviews %}
+      <li style="align-items:flex-start"><div style="flex:1"><span class="stars">{{ r.rating|stars }}</span> <b>{{ r.customer_name }}</b>
+        <div class="muted small">{{ r.product.name }}</div><div style="margin-top:3px">{{ r.comment|truncatechars:90 }}</div></div></li>
+    {% empty %}<li class="muted">Nothing waiting for approval.</li>{% endfor %}</ul></div>
+</div>
+
+{{ chart_daily|json_script:"d-daily" }}{{ chart_status|json_script:"d-status" }}{{ chart_category|json_script:"d-category" }}
+{% endblock %}
+{% block scripts %}<script src="{% static 'dashboard/chart.umd.js' %}" onload="window.renderCharts&&window.renderCharts()"></script>{% endblock %}

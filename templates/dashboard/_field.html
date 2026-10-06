@@ -1,0 +1,7 @@
+<div class="field{% if field.field.widget.input_type == 'checkbox' %} inline{% endif %}{% if full %} full{% endif %}">
+  {% if field.field.widget.input_type == 'checkbox' %}{{ field }}<label for="{{ field.id_for_label }}">{{ field.label }}</label>
+  {% else %}<label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span style="color:var(--red)">*</span>{% endif %}</label>{{ field }}{% endif %}
+  {% if field.value and field.field.widget.input_type == 'file' and field.value.url %}<div style="margin-top:8px"><img src="{{ field.value.url }}" class="note-img" alt=""></div>{% endif %}
+  {% if field.help_text %}<div class="help">{{ field.help_text }}</div>{% endif %}
+  {% for e in field.errors %}<div class="err">{{ e }}</div>{% endfor %}
+</div>

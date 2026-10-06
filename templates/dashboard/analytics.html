@@ -1,0 +1,49 @@
+{% extends 'dashboard/base.html' %}{% load static dash_extras %}
+{% block title %}Analytics{% endblock %}{% block heading %}Analytics{% endblock %}
+{% block content %}
+<div class="row sp-b" style="margin-bottom:16px"><div class="muted">Sales, product, customer and timing insights. Cancelled orders are excluded from revenue.</div>{% include 'dashboard/_range.html' %}</div>
+{% include 'dashboard/_kpis.html' %}
+
+<div class="card mt"><div class="card-h"><div><h2>Revenue trend</h2><div class="sub">Daily revenue (area) and order count (dashed)</div></div></div>
+  <div class="card-b"><div class="chart-box"><canvas id="c-daily"></canvas></div></div></div>
+
+<div class="grid g-2 mt">
+  <div class="card"><div class="card-h"><div><h2>Monthly revenue</h2><div class="sub">Last 12 months</div></div></div><div class="card-b"><div class="chart-box sm"><canvas id="c-monthly"></canvas></div></div></div>
+  <div class="card"><div class="card-h"><div><h2>Revenue by category</h2></div></div>
+    <div class="card-b"><div class="grid g-2" style="align-items:center"><div class="chart-box sm"><canvas id="c-category"></canvas></div>
+      <div class="legend">{% for c in categories %}<div><span>{{ c.name }}</span><b>{{ c.revenue|money }}</b></div>{% empty %}<span class="muted">No data</span>{% endfor %}</div></div></div></div>
+</div>
+
+<div class="grid g-2 mt">
+  <div class="card"><div class="card-h"><div><h2>Top cities</h2><div class="sub">By revenue</div></div></div><div class="card-b"><div class="chart-box sm"><canvas id="c-city"></canvas></div></div></div>
+  <div class="card"><div class="card-h"><div><h2>Order funnel</h2><div class="sub">Where orders end up</div></div></div><div class="card-b"><div class="chart-box sm"><canvas id="c-status"></canvas></div></div></div>
+</div>
+
+<div class="grid g-2 mt">
+  <div class="card"><div class="card-h"><div><h2>Busiest days</h2><div class="sub">Orders by weekday</div></div></div><div class="card-b"><div class="chart-box sm"><canvas id="c-weekday"></canvas></div></div></div>
+  <div class="card"><div class="card-h"><div><h2>Busiest hours</h2><div class="sub">Orders by hour of day (PKT)</div></div></div><div class="card-b"><div class="chart-box sm"><canvas id="c-hour"></canvas></div></div></div>
+</div>
+
+<div class="grid g-main mt">
+  <div class="card"><div class="card-h"><h2>Top products</h2></div>
+    <div class="card-b flush tbl-wrap" style="margin-top:12px"><table class="tbl"><thead><tr><th>#</th><th>Product</th><th class="num">Units</th><th class="num">Revenue</th></tr></thead><tbody>
+    {% for p in top_products %}<tr><td class="muted">{{ forloop.counter }}</td>
+      <td><div class="cell-prod">{% if p.product and p.product.primary_image %}<img class="thumb sq" src="{{ p.product.primary_image.image.url }}" alt="">{% else %}<div class="thumb sq"></div>{% endif %}<b>{{ p.product_name }}</b></div></td>
+      <td class="num">{{ p.units }}</td><td class="num"><b>{{ p.revenue|money }}</b></td></tr>
+    {% empty %}<tr><td colspan="4"><div class="empty">No sales in this period.</div></td></tr>{% endfor %}</tbody></table></div></div>
+
+  <div class="grid" style="align-content:start">
+    <div class="card"><div class="card-h"><h2>Customers</h2><a class="btn sm ghost" href="{% url 'dashboard:customers' %}">View →</a></div>
+      <div class="card-b"><dl class="kv" style="grid-template-columns:1fr auto">
+        <dt>Total customers</dt><dd>{{ customer_summary.total }}</dd><dt>Placed an order</dt><dd>{{ customer_summary.buyers }}</dd>
+        <dt>Repeat buyers</dt><dd>{{ customer_summary.repeat }} ({{ customer_summary.repeat_rate }}%)</dd><dt>VIP customers</dt><dd>{{ customer_summary.vip }}</dd>
+        <dt>With an account</dt><dd>{{ customer_summary.registered }}</dd></dl></div></div>
+    <div class="card"><div class="card-h"><h2>Review ratings</h2><a class="btn sm ghost" href="{% url 'dashboard:reviews' %}">View →</a></div>
+      <div class="card-b">{% for r in rating_dist %}<div class="row" style="margin-bottom:7px"><span style="width:28px">{{ r.stars }}★</span><div class="bar"><i style="width:{{ r.pct }}%"></i></div><span class="muted small" style="width:30px;text-align:right">{{ r.count }}</span></div>{% endfor %}</div></div>
+  </div>
+</div>
+
+{{ chart_daily|json_script:"d-daily" }}{{ chart_monthly|json_script:"d-monthly" }}{{ chart_status|json_script:"d-status" }}{{ chart_category|json_script:"d-category" }}
+{{ chart_city|json_script:"d-city" }}{{ chart_weekday|json_script:"d-weekday" }}{{ chart_hour|json_script:"d-hour" }}
+{% endblock %}
+{% block scripts %}<script src="{% static 'dashboard/chart.umd.js' %}" onload="window.renderCharts&&window.renderCharts()"></script>{% endblock %}

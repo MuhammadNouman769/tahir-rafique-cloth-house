@@ -1,0 +1,8 @@
+{% extends 'dashboard/base.html' %}{% load dash_extras %}
+{% block title %}{{ m.subject }}{% endblock %}{% block heading %}Message{% endblock %}
+{% block topbar_actions %}<a class="btn sm" href="{% url 'dashboard:messages' %}">← Inbox</a>{% endblock %}
+{% block content %}<div class="card" style="max-width:780px"><div class="card-b">
+  <h2 style="font-size:19px">{{ m.subject }}</h2><div class="muted" style="margin:4px 0 16px">From <b>{{ m.name }}</b> · {{ m.email }}{% if m.phone %} · {{ m.phone }}{% endif %} · {{ m.created_at|date:"d M Y, H:i" }}</div>
+  <div style="white-space:pre-wrap;padding:16px;background:var(--panel-2);border-radius:10px">{{ m.message }}</div>
+  <div class="row" style="margin-top:16px"><a class="btn primary sm" href="mailto:{{ m.email }}?subject=Re: {{ m.subject|urlencode }}">Reply by email</a>{% if whatsapp %}<a class="btn sm" target="_blank" href="https://wa.me/{{ whatsapp }}">{% icon 'whatsapp' %}WhatsApp</a>{% endif %}
+    <form method="post" action="{% url 'dashboard:messages_action' %}" style="margin-left:auto" data-confirm="Delete this message?">{% csrf_token %}<input type="hidden" name="id" value="{{ m.pk }}"><button class="btn danger sm" name="action" value="delete">Delete</button></form></div></div></div>{% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'dashboard/base.html' %}{% load dash_extras %}
+{% block title %}{{ cfg.title }}{% endblock %}{% block heading %}{{ cfg.title }}{% endblock %}
+{% block topbar_actions %}<a class="btn primary sm" href="{% url 'dashboard:crud_new' kind %}">{% icon 'plus' %}Add {{ cfg.singular|lower }}</a>{% endblock %}
+{% block content %}
+{% if section == 'catalog' %}{% include 'dashboard/_catalog_tabs.html' with active=kind %}{% else %}{% include 'dashboard/_content_tabs.html' with active=kind %}{% endif %}
+<div class="card"><div class="tbl-wrap"><table class="tbl"><thead><tr>{% for label, attr, type in cfg.columns %}<th>{{ label }}</th>{% endfor %}{% if kind == 'categories' %}<th class="num">Products</th>{% endif %}<th></th></tr></thead><tbody>
+{% for r in rows %}<tr>
+  {% for label, attr, type in cfg.columns %}<td>
+    {% if type == 'image' %}{% if attr == 'image' and r.image %}<img class="thumb sq" src="{{ r.image.url }}" alt="">{% else %}<div class="thumb sq"></div>{% endif %}
+    {% elif type == 'bool' %}<form method="post" action="{% url 'dashboard:crud_toggle' kind r.pk %}">{% csrf_token %}<button class="pill {% if r.active %}green{% else %}gray{% endif %}" style="border:0;cursor:pointer">{% if r.active %}Active{% else %}Hidden{% endif %}</button></form>
+    {% elif type == 'rating' %}<span class="stars">{{ r.rating|stars }}</span>
+    {% elif attr == '__str__' %}<b>{{ r }}</b>{% elif attr == 'name' or attr == 'title' or attr == 'customer_name' %}<b>{% if attr == 'name' %}{{ r.name }}{% elif attr == 'title' %}{{ r.title }}{% else %}{{ r.customer_name }}{% endif %}</b>
+    {% elif attr == 'subtitle' %}{{ r.subtitle|truncatechars:60 }}{% elif attr == 'comment' %}{{ r.comment|truncatechars:80 }}{% elif attr == 'city' %}{{ r.city }}{% elif attr == 'order' %}{{ r.order }}{% elif attr == 'text' %}{{ r.text|truncatechars:80 }}{% elif attr == 'caption' %}{{ r.caption|default:"—" }}{% endif %}</td>{% endfor %}
+  {% if kind == 'categories' %}<td class="num">{{ r.product_total }}</td>{% endif %}
+  <td class="num"><div class="row" style="justify-content:flex-end"><a class="btn sm" href="{% url 'dashboard:crud_edit' kind r.pk %}">Edit</a>
+    <form method="post" action="{% url 'dashboard:crud_delete' kind r.pk %}" data-confirm="Delete this {{ cfg.singular|lower }}?">{% csrf_token %}<button class="btn sm danger">Delete</button></form></div></td></tr>
+{% empty %}<tr><td colspan="9"><div class="empty"><b>Nothing here yet</b>Add your first {{ cfg.singular|lower }}.</div></td></tr>{% endfor %}</tbody></table></div></div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% load static dash_extras %}<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sign in · Dashboard</title><meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'dashboard/dashboard.css' %}"></head>
+<body><div class="login-wrap"><div class="login-card">
+  <div class="brand-mark" style="width:46px;height:46px;font-size:22px;margin-bottom:14px">T</div>
+  <h2 class="serif" style="font-size:24px">{{ site_settings.store_name }}</h2>
+  <p class="muted" style="margin:4px 0 22px">Sign in to the store dashboard</p>
+  {% for m in messages %}<div class="alert {{ m.tags }}">{{ m }}</div>{% endfor %}
+  <form method="post">{% csrf_token %}<input type="hidden" name="next" value="{{ next }}">
+    <div class="field"><label>Username</label><input class="input" name="username" autofocus required autocomplete="username"></div>
+    <div class="field"><label>Password</label><input class="input" type="password" name="password" required autocomplete="current-password"></div>
+    <button class="btn primary" style="width:100%;justify-content:center;padding:11px">Sign in</button>
+  </form>
+</div></div></body></html>

@@ -1,0 +1,15 @@
+{% load dash_extras %}
+<div class="grid g-kpi g-kpi6">
+{% for k in kpis %}
+  <div class="card kpi">
+    <div class="l">{{ k.label }}</div>
+    <div class="v">{% if k.kind == 'money' %}{{ k.value|money }}{% elif k.kind == 'pct' %}{{ k.value }}%{% else %}{{ k.value|floatformat:0 }}{% endif %}</div>
+    {% if k.change is not None %}
+      {% if k.change == 0 %}<span class="delta flat">0%</span>
+      {% elif k.change > 0 %}<span class="delta {% if k.inverse %}down{% else %}up{% endif %}">▲ {{ k.change }}%</span>
+      {% else %}<span class="delta {% if k.inverse %}up{% else %}down{% endif %}">▼ {{ k.change }}%</span>{% endif %}
+      <span class="vs">vs prior period</span>
+    {% elif range_key != 'all' %}<span class="vs">No previous data</span>{% endif %}
+  </div>
+{% endfor %}
+</div>

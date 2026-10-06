@@ -1,0 +1,42 @@
+{% extends 'dashboard/base.html' %}{% load dash_extras %}
+{% block title %}Products{% endblock %}{% block heading %}Products{% endblock %}
+{% block topbar_actions %}<a class="btn primary sm" href="{% url 'dashboard:product_new' %}">{% icon 'plus' %}Add product</a>{% endblock %}
+{% block content %}
+<div class="grid g-kpi" style="margin-bottom:16px">
+  <a class="card kpi" href="?"><div class="l">Total products</div><div class="v">{{ stats.total }}</div></a>
+  <a class="card kpi" href="?stock=in"><div class="l">Live &amp; in stock</div><div class="v" style="color:var(--green)">{{ stats.live }}</div></a>
+  <a class="card kpi" href="?stock=low"><div class="l">Low stock (≤5)</div><div class="v" style="color:var(--amber)">{{ stats.low }}</div></a>
+  <a class="card kpi" href="?stock=out"><div class="l">Out of stock</div><div class="v" style="color:var(--red)">{{ stats.out }}</div></a>
+</div>
+<form class="filters" method="get">
+  <input class="input search" name="q" value="{{ q }}" placeholder="Search name or SKU…">
+  <select class="input" name="category" data-autosubmit><option value="">All categories</option>{% for c in categories %}<option value="{{ c.pk }}" {% if cat == c.pk|stringformat:'s' %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select>
+  <select class="input" name="stock" data-autosubmit><option value="">Any stock</option><option value="in" {% if stock == 'in' %}selected{% endif %}>In stock</option><option value="low" {% if stock == 'low' %}selected{% endif %}>Low stock</option><option value="out" {% if stock == 'out' %}selected{% endif %}>Out of stock</option><option value="hidden" {% if stock == 'hidden' %}selected{% endif %}>Hidden</option></select>
+  <select class="input" name="flag" data-autosubmit><option value="">Any flag</option><option value="featured" {% if flag == 'featured' %}selected{% endif %}>Featured</option><option value="bestseller" {% if flag == 'bestseller' %}selected{% endif %}>Bestseller</option><option value="new_arrival" {% if flag == 'new_arrival' %}selected{% endif %}>New arrival</option><option value="deal_of_day" {% if flag == 'deal_of_day' %}selected{% endif %}>Deal of day</option></select>
+  <select class="input" name="sort" data-autosubmit><option value="-created_at" {% if sort == '-created_at' %}selected{% endif %}>Newest</option><option value="name" {% if sort == 'name' %}selected{% endif %}>Name A–Z</option><option value="price" {% if sort == 'price' %}selected{% endif %}>Price ↑</option><option value="-price" {% if sort == '-price' %}selected{% endif %}>Price ↓</option><option value="stock_quantity" {% if sort == 'stock_quantity' %}selected{% endif %}>Stock ↑</option><option value="-review_count" {% if sort == '-review_count' %}selected{% endif %}>Most reviewed</option></select>
+  <button class="btn">Search</button>{% if q or cat or stock or flag %}<a class="btn ghost" href="?">Clear</a>{% endif %}
+</form>
+
+<div class="card" data-bulk>
+  <form method="post" action="{% url 'dashboard:products_bulk' %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
+  <div class="bulk"><b><span data-count>0</span> selected</b>
+    <button class="btn sm" name="action" value="show">Show on store</button><button class="btn sm" name="action" value="hide">Hide</button>
+    <button class="btn sm" name="action" value="feature">Feature</button><button class="btn sm" name="action" value="unfeature">Unfeature</button>
+    <button class="btn sm danger" name="action" value="delete" data-action="confirm" data-message="Delete the selected products?">Delete</button></div>
+  <div class="tbl-wrap"><table class="tbl"><thead><tr><th style="width:36px"><input type="checkbox" class="check" data-check-all></th><th>Product</th><th>Category</th><th class="num">Price</th><th>Stock</th><th>Status</th><th>Rating</th><th></th></tr></thead><tbody>
+  {% for p in products %}<tr>
+    <td><input type="checkbox" class="check" name="ids" value="{{ p.pk }}" data-row-check></td>
+    <td><div class="cell-prod">{% with img=p.primary_image %}{% if img %}<img class="thumb" src="{{ img.image.url }}" alt="">{% else %}<div class="thumb"></div>{% endif %}{% endwith %}
+      <div><a href="{% url 'dashboard:product_edit' p.pk %}"><b>{{ p.name }}</b></a><span class="muted small mono">{{ p.sku }}</span></div></div></td>
+    <td>{{ p.category }}</td>
+    <td class="num">{% if p.is_on_sale %}<b>{{ p.sale_price|money }}</b><div class="muted small"><s>{{ p.price|money }}</s> −{{ p.discount_percentage }}%</div>{% else %}<b>{{ p.price|money }}</b>{% endif %}</td>
+    <td>{% if p.stock_quantity == 0 %}<span class="pill red">Out</span>{% elif p.stock_quantity <= 5 %}<span class="pill amber">{{ p.stock_quantity }} left</span>{% else %}<span class="pill green">{{ p.stock_quantity }}</span>{% endif %}</td>
+    <td>{% if p.available %}<span class="pill green nodot">Live</span>{% else %}<span class="pill gray nodot">Hidden</span>{% endif %}
+      {% if p.featured %}<span class="pill amber nodot">★ Featured</span>{% endif %}{% if p.bestseller %} <span class="pill violet nodot">Bestseller</span>{% endif %}{% if p.new_arrival %} <span class="pill blue nodot">New</span>{% endif %}</td>
+    <td><span class="stars">★</span> {{ p.rating }} <span class="muted small">({{ p.review_count }})</span></td>
+    <td class="num"><a class="btn sm" href="{% url 'dashboard:product_edit' p.pk %}">Edit</a></td></tr>
+  {% empty %}<tr><td colspan="8"><div class="empty"><b>No products found</b>Adjust the filters or add a product.</div></td></tr>{% endfor %}
+  </tbody></table></div></form>
+  {% include 'dashboard/_pager.html' with page_obj=products %}
+</div>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'dashboard/base.html' %}{% load dash_extras %}
+{% block title %}Reviews{% endblock %}{% block heading %}Reviews{% endblock %}
+{% block content %}
+<div class="grid g-main" style="margin-bottom:16px">
+  <div class="card"><div class="card-b row" style="gap:36px">
+    <div><div class="muted small">Average rating</div><div style="font-size:34px;font-weight:700">{{ avg }}<span class="stars" style="font-size:20px"> ★</span></div><div class="muted small">{{ total }} reviews · {{ pending }} pending</div></div>
+    <div style="flex:1;min-width:220px">{% for r in dist %}<div class="row" style="margin-bottom:5px"><span style="width:28px">{{ r.stars }}★</span><div class="bar"><i style="width:{{ r.pct }}%"></i></div><span class="muted small" style="width:30px;text-align:right">{{ r.count }}</span></div>{% endfor %}</div></div></div>
+  <div class="card kpi"><div class="l">Awaiting moderation</div><div class="v" style="color:var(--amber)">{{ pending }}</div><a class="btn sm" href="?status=pending">Review them</a></div>
+</div>
+<div class="tabs"><a href="?" class="{% if not status %}on{% endif %}">All</a><a href="?status=pending" class="{% if status == 'pending' %}on{% endif %}">Pending</a><a href="?status=approved" class="{% if status == 'approved' %}on{% endif %}">Approved</a></div>
+<form class="filters" method="get">{% if status %}<input type="hidden" name="status" value="{{ status }}">{% endif %}
+  <input class="input search" name="q" value="{{ q }}" placeholder="Search reviewer, product or comment…">
+  <select class="input" name="rating" data-autosubmit><option value="">Any rating</option>{% for n in "54321" %}<option value="{{ n }}" {% if rating == n %}selected{% endif %}>{{ n }} stars</option>{% endfor %}</select><button class="btn">Search</button></form>
+<div class="card" data-bulk><form method="post" action="{% url 'dashboard:reviews_action' %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
+  <div class="bulk"><b><span data-count>0</span> selected</b><button class="btn sm" name="action" value="approve">Approve</button><button class="btn sm" name="action" value="unapprove">Hide</button><button class="btn sm danger" name="action" value="delete" data-action="confirm" data-message="Delete selected reviews?">Delete</button></div>
+  <div class="tbl-wrap"><table class="tbl"><thead><tr><th style="width:36px"><input type="checkbox" class="check" data-check-all></th><th>Reviewer</th><th>Rating</th><th>Review</th><th>Product</th><th>Status</th><th>Date</th></tr></thead><tbody>
+  {% for r in reviews %}<tr><td><input type="checkbox" class="check" name="ids" value="{{ r.pk }}" data-row-check></td>
+    <td><b>{{ r.customer_name }}</b></td><td><span class="stars">{{ r.rating|stars }}</span></td><td style="max-width:360px">{{ r.comment }}</td>
+    <td><a href="{% url 'dashboard:product_edit' r.product_id %}">{{ r.product.name|truncatechars:34 }}</a></td>
+    <td>{% if r.approved %}<span class="pill green">Approved</span>{% else %}<span class="pill amber">Pending</span>{% endif %}</td><td class="muted small">{{ r.created_at|date:"d M Y" }}</td></tr>
+  {% empty %}<tr><td colspan="7"><div class="empty"><b>No reviews</b>Nothing matches these filters.</div></td></tr>{% endfor %}</tbody></table></div></form>
+  {% include 'dashboard/_pager.html' with page_obj=reviews %}</div>
+{% endblock %}

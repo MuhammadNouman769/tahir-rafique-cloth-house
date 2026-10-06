@@ -1,0 +1,14 @@
+{% load dash_extras %}<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Invoice {{ order.order_number }}</title>
+<style>body{font-family:Inter,Arial,sans-serif;color:#1a1512;max-width:780px;margin:30px auto;padding:0 20px;font-size:14px}
+h1{font-family:Georgia,serif;margin:0}table{width:100%;border-collapse:collapse;margin:22px 0}th{text-align:left;border-bottom:2px solid #1a1512;padding:8px}
+td{padding:9px 8px;border-bottom:1px solid #e4dcd0}.r{text-align:right}.top{display:flex;justify-content:space-between;gap:20px}.muted{color:#7b7068}
+.tot{margin-left:auto;width:280px}.tot div{display:flex;justify-content:space-between;padding:4px 0}.tot .g{border-top:2px solid #1a1512;font-size:17px;font-weight:700;margin-top:6px;padding-top:8px}
+button{padding:9px 16px;border:0;background:#1a1512;color:#fff;border-radius:7px;cursor:pointer}@media print{button{display:none}}</style></head><body>
+<div class="top"><div><h1>{{ site_settings.store_name }}</h1><div class="muted">{{ site_settings.address }}<br>{{ site_settings.support_phone }} · {{ site_settings.email }}</div></div>
+<div class="r"><h2 style="margin:0">INVOICE</h2><div>{{ order.order_number }}</div><div class="muted">{{ order.created_at|date:"d M Y" }}</div></div></div>
+<p><b>Bill to</b><br>{{ order.full_name }}<br>{{ order.phone }}<br>{{ order.address }}, {% if order.area %}{{ order.area }}, {% endif %}{{ order.city }}</p>
+<table><thead><tr><th>Item</th><th>Variant</th><th class="r">Price</th><th class="r">Qty</th><th class="r">Amount</th></tr></thead><tbody>
+{% for it in order.items.all %}<tr><td>{{ it.product_name }}</td><td>{{ it.size }} {{ it.color }}</td><td class="r">{{ it.price|money }}</td><td class="r">{{ it.quantity }}</td><td class="r">{{ it.subtotal|money }}</td></tr>{% endfor %}</tbody></table>
+<div class="tot"><div><span>Subtotal</span><span>{{ order.subtotal|money }}</span></div><div><span>Delivery</span><span>{{ order.delivery_charges|money }}</span></div><div class="g"><span>Total</span><span>{{ order.total|money }}</span></div></div>
+<p class="muted" style="margin-top:40px;text-align:center">Thank you for shopping with {{ site_settings.store_name }}.</p>
+<p style="text-align:center"><button onclick="window.print()">Print</button></p><script>window.onload=function(){setTimeout(function(){window.print()},300)}</script></body></html>
