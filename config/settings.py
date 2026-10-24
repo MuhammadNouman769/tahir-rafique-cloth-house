@@ -116,3 +116,18 @@ DEFAULT_WHATSAPP_NUMBER = config('DEFAULT_WHATSAPP_NUMBER', default='92321857948
 MESSAGE_TAGS = {
     10: 'debug', 20: 'info', 25: 'success', 30: 'warning', 40: 'error',
 }
+
+# Email
+EMAIL_BACKEND = config(
+    'EMAIL_BACKEND',
+    default='django.core.mail.backends.smtp.EmailBackend'
+)
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = f"Tahir Rafique Cloth House <{EMAIL_HOST_USER}>"
+
+# Newsletter emails mein links ke liye
+SITE_URL = config('SITE_URL', default='http://127.0.0.1:8000')

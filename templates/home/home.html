@@ -261,11 +261,11 @@
     <h2 class="font-serif text-3xl sm:text-4xl font-bold mt-2">@TahirRafiqueClothHouse</h2>
   </div>
   <div class="flex gap-3 overflow-x-auto no-scrollbar px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-    {% for img in gallery_images %}
+    {% comment %} {% for img in gallery_images %}
     <a href="{{ img.link|default:'#' }}" class="shrink-0 w-40 h-40 sm:w-52 sm:h-52 rounded-lg overflow-hidden">
       <img src="{{ img.image.url }}" alt="{{ img.caption }}" class="w-full h-full object-cover hover:scale-105 transition duration-500">
     </a>
-    {% endfor %}
+    {% endfor %} {% endcomment %}
   </div>
 </section>
 {% endif %}
@@ -283,7 +283,6 @@
     </form>
   </div>
 </section>
-
 <script>
   // Simple hero slider auto-rotate
   (function() {
@@ -297,4 +296,33 @@
     }, 5000);
   })();
 </script>
-{% endblock %}
+
+{% endblock content %}
+
+{% block extra_scripts %}
+<script>
+document.querySelector('.js-newsletter-form')?.addEventListener('submit', async e => {
+  e.preventDefault();
+  const f = e.target;
+  let note = f.parentElement.querySelector('.js-newsletter-note');
+  if (!note) {
+    note = document.createElement('p');
+    note.className = 'js-newsletter-note mt-4 text-sm';
+    f.after(note);
+  }
+  try {
+    const r = await fetch(f.action, {
+      method: 'POST', body: new FormData(f),
+      headers: {'X-Requested-With': 'XMLHttpRequest'}
+    });
+    const d = await r.json();
+    note.textContent = d.message;
+    note.style.color = d.ok ? '#15803d' : '#b91c1c';
+    if (d.ok) f.reset();
+  } catch (err) {
+    note.textContent = 'Something went wrong. Please try again.';
+    note.style.color = '#b91c1c';
+  }
+});
+</script>
+{% endblock extra_scripts %}

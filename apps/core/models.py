@@ -1,6 +1,7 @@
 import re
 from django.db import models
 from django.core.validators import MinValueValidator
+import uuid
 
 
 class SiteSettings(models.Model):
@@ -131,6 +132,8 @@ class GalleryImage(models.Model):
 
 class NewsletterSubscriber(models.Model):
     email = models.EmailField(unique=True)
+    is_active = models.BooleanField(default=True)
+    token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     subscribed_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
