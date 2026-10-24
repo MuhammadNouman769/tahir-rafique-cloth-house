@@ -131,3 +131,5 @@ DEFAULT_FROM_EMAIL = f"Tahir Rafique Cloth House <{EMAIL_HOST_USER}>"
 
 # Newsletter emails mein links ke liye
 SITE_URL = config('SITE_URL', default='http://127.0.0.1:8000')
+
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='', cast=Csv())
